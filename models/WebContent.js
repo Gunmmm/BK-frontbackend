@@ -9,6 +9,7 @@ const WebContentSchema = new mongoose.Schema({
   image: { type: String },
   isFeatured: { type: Boolean, default: true },
   status: { type: String, default: 'published' },
+  examDate: { type: Date }, // Exam date for countdown timer
   // Dynamic Sections Array
   dynamicSections: [{
     title: { type: String },
