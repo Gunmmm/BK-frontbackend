@@ -1,6 +1,31 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Clock } from "lucide-react";
+
+// ── Mini Countdown ──────────────────────────────────────────────────────────
+function useCountdown(examDate: string | null) {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, active: false });
+
+  useEffect(() => {
+    if (!examDate) return;
+    const calc = () => {
+      const diff = new Date(examDate).getTime() - Date.now();
+      if (diff <= 0) { setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, active: false }); return; }
+      setTimeLeft({
+        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((diff % (1000 * 60)) / 1000),
+        active: true
+      });
+    };
+    calc();
+    const id = setInterval(calc, 1000);
+    return () => clearInterval(id);
+  }, [examDate]);
+
+  return timeLeft;
+}
 
 interface ExamCategoryCardProps {
   category: any;
@@ -14,6 +39,8 @@ interface ExamCategoryCardProps {
   onViewMPSC?: () => void;
   onViewPolice?: () => void;
   onViewMAHATET?: () => void;
+  onViewDynamicExam?: (examName: string) => void;
+  examDate?: string | null;
 }
 
 export function ExamCategoryCard({ 
@@ -27,8 +54,12 @@ export function ExamCategoryCard({
   onSelect,
   onViewMPSC,
   onViewPolice,
-  onViewMAHATET
+  onViewMAHATET,
+  onViewDynamicExam,
+  examDate
 }: ExamCategoryCardProps) {
+  const countdown = useCountdown(examDate || null);
+
   return (
     <motion.div 
       layout
@@ -68,6 +99,48 @@ export function ExamCategoryCard({
         </div>
       </motion.div>
 
+      {/* ── COUNTDOWN TIMER ON CARD ── */}
+      <div className="bg-[#111] border-t-4 border-[#F7931A] px-4 py-4 pointer-events-none">
+        {countdown.active ? (
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <Clock size={12} className="text-[#F7931A] animate-pulse" />
+              <span className="text-[10px] font-mono font-black text-[#F7931A] uppercase tracking-[0.25em]">Exam Countdown</span>
+            </div>
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { val: countdown.days, label: 'Days' },
+                { val: countdown.hours, label: 'Hrs' },
+                { val: countdown.minutes, label: 'Min' },
+                { val: countdown.seconds, label: 'Sec' },
+              ].map((b) => (
+                <div key={b.label} className="text-center">
+                  <div className="bg-[#F7931A] py-2 px-1 shadow-[3px_3px_0_0_#000]">
+                    <span className="text-black font-black font-mono tabular-nums text-2xl leading-none block">
+                      {String(b.val).padStart(2, '0')}
+                    </span>
+                  </div>
+                  <p className="text-[9px] font-mono font-black uppercase text-[#F7931A] mt-1.5 tracking-widest">{b.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between py-1">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full border-2 border-[#F7931A]/20 flex items-center justify-center">
+                <Clock size={14} className="text-[#F7931A]/30" />
+              </div>
+              <span className="text-[10px] font-mono font-black text-[#F7931A]/30 uppercase tracking-[0.2em]">Live Timer Not Activated</span>
+            </div>
+            <div className="text-[8px] font-mono text-[#F7931A]/20 uppercase border border-[#F7931A]/10 px-2 py-1">
+              Waiting for Data...
+            </div>
+          </div>
+        )}
+      </div>
+
+
       <div 
         className="absolute top-4 right-4 w-10 h-10 border-2 border-ink bg-brand flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-20 shadow-[4px_4px_0_0_#1A1A1A]"
       >
@@ -106,6 +179,8 @@ export function ExamCategoryCard({
                                   onViewPolice();
                                 } else if (exam === "MAHA TET (Maharashtra)" && onViewMAHATET) {
                                   onViewMAHATET();
+                                } else if (onViewDynamicExam) {
+                                  onViewDynamicExam(category.title);
                                 } else {
                                   onRegister();
                                 }
@@ -136,7 +211,14 @@ export function ExamCategoryCard({
                   {isSelected ? 'Remove Selection' : 'Select Course'}
                 </button>
                 <button 
-                  onClick={(e) => { e.stopPropagation(); onViewSyllabus(); }}
+                  onClick={(e) => { 
+                    e.stopPropagation(); 
+                    if (onViewDynamicExam) {
+                      onViewDynamicExam(category.title);
+                    } else {
+                      onViewSyllabus(); 
+                    }
+                  }}
                    className="btn-brutalist w-full"
                  >
                    Open Strategy Portal

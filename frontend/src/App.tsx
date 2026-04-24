@@ -23,6 +23,7 @@ import { PoliceDetailsPage } from './pages/PoliceDetailsPage';
 import { MAHATETDetailsPage } from './pages/MAHATETDetailsPage';
 import { SuccessStoriesPage } from './pages/SuccessStoriesPage';
 import { AboutUs } from './pages/AboutUs';
+import { DynamicExamDetailsPage } from './pages/DynamicExamDetailsPage';
 import AddStoryModal from './components/AddStoryModal';
 import { INITIAL_STORIES, Story } from './data/stories';
 
@@ -31,9 +32,10 @@ import { EXAM_CATEGORIES } from './data/constants';
 
 export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [view, setView] = useState<'home' | 'courses' | 'syllabus' | 'about' | 'adminLogin' | 'courseDetailMPSC' | 'courseDetailPolice' | 'courseDetailMAHATET' | 'successStories'>('home');
+  const [view, setView] = useState<'home' | 'courses' | 'syllabus' | 'about' | 'adminLogin' | 'courseDetailMPSC' | 'courseDetailPolice' | 'courseDetailMAHATET' | 'successStories' | 'dynamicExamDetail'>('home');
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [selectedSyllabusId, setSelectedSyllabusId] = useState<number | null>(null);
+  const [selectedExamName, setSelectedExamName] = useState<string>('');
   const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
   const [isAdmissionModalOpen, setIsAdmissionModalOpen] = useState(false);
   const [isAddStoryModalOpen, setIsAddStoryModalOpen] = useState(false);
@@ -219,6 +221,10 @@ export default function App() {
                       onViewMPSC={() => setView('courseDetailMPSC')}
                       onViewPolice={() => setView('courseDetailPolice')}
                       onViewMAHATET={() => setView('courseDetailMAHATET')}
+                      onViewDynamicExam={(examName) => {
+                        setSelectedExamName(examName);
+                        setView('dynamicExamDetail');
+                      }}
                       onRegister={() => setIsRegistrationModalOpen(true)}
                       onSelectCategory={setSelectedCategory}
                     />
@@ -261,6 +267,13 @@ export default function App() {
                       setView={setView}
                       setIsRegistrationModalOpen={setIsRegistrationModalOpen}
                       setIsAdmissionModalOpen={setIsAdmissionModalOpen}
+                    />
+                  )}
+                  {view === 'dynamicExamDetail' && (
+                    <DynamicExamDetailsPage 
+                      examName={selectedExamName}
+                      onBack={() => setView('courses')}
+                      onRegister={() => setIsRegistrationModalOpen(true)}
                     />
                   )}
                   {view === 'about' && (
