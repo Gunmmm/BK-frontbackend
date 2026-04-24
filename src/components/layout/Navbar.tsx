@@ -131,7 +131,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {[
             { id: 'home', label: 'Home', icon: '◰' },
             { id: 'about', label: 'About Us', icon: '◎' },
-            { id: 'courses', label: 'Courses', icon: '⌬' },
+            { id: 'courses', label: 'Explore the government', icon: '⌬' },
             { id: 'courseDetailPolice', label: 'Police Bharti', icon: '🛡️' },
             { id: 'syllabus', label: 'Book', icon: '◈' }
           ].map((item) => (

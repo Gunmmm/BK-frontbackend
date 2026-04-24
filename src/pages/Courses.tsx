@@ -1,6 +1,5 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Search, Globe, ChevronDown, CheckCircle2 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { motion } from 'motion/react';
 import ExamCategoryCard from '../components/features/ExamCategoryCard';
 import { EXAM_CATEGORIES } from '../data/constants';
 
@@ -13,6 +12,7 @@ interface CoursesProps {
   onViewMPSC: () => void;
   onViewPolice: () => void;
   onViewMAHATET: () => void;
+  onViewDynamicExam?: (examName: string) => void;
 }
 
 export const Courses: React.FC<CoursesProps> = ({
@@ -23,9 +23,48 @@ export const Courses: React.FC<CoursesProps> = ({
   onSelectCategory,
   onViewMPSC,
   onViewPolice,
-  onViewMAHATET
+  onViewMAHATET,
+  onViewDynamicExam
 }) => {
   const [activeCipherId, setActiveCipherId] = React.useState<number | null>(null);
+  // Map: category title → examDate string (ISO)
+  const [examDates, setExamDates] = useState<Record<string, string>>({});
+
+  // Fetch exam dates from backend once
+  useEffect(() => {
+    const fetchDates = async () => {
+      try {
+        const [examsResp, coursesResp, upscResp] = await Promise.all([
+          fetch('/api/content/exams'),
+          fetch('/api/content/courses'),
+          fetch('/api/content/upsc_hub')
+        ]);
+        
+        const [examsData, coursesData, upscData] = await Promise.all([
+          examsResp.json(),
+          coursesResp.json(),
+          upscResp.json()
+        ]);
+        
+        const allItems = [
+          ...(examsData.items || []),
+          ...(coursesData.items || []),
+          ...(upscData.items || [])
+        ];
+
+        const map: Record<string, string> = {};
+        allItems.forEach((item: any) => {
+          if (item.examDate && item.category) {
+            // Sanitize: lowercase and remove special characters/spaces for perfect matching
+            const cleanKey = item.category.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+            map[cleanKey] = item.examDate;
+          }
+        });
+        setExamDates(map);
+      } catch (e) { console.error("Date Fetch Failed:", e); }
+    };
+    fetchDates();
+  }, []);
 
   const filteredCategories = selectedCategory
     ? EXAM_CATEGORIES.filter(c => c.id === selectedCategory)
@@ -60,22 +99,30 @@ export const Courses: React.FC<CoursesProps> = ({
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-start">
-        {filteredCategories.map((category, idx) => (
-          <ExamCategoryCard 
-            key={category.id}
-            category={category}
-            idx={idx}
-            isOpen={activeCipherId === category.id}
-            onToggle={() => setActiveCipherId(activeCipherId === category.id ? null : category.id)}
-            onViewSyllabus={() => onViewSyllabus(category.id)}
-            onRegister={onRegister}
-            isSelected={selectedCategory === category.id}
-            onSelect={() => onSelectCategory(selectedCategory === category.id ? null : category.id)}
-            onViewMPSC={onViewMPSC}
-            onViewPolice={onViewPolice}
-            onViewMAHATET={onViewMAHATET}
-          />
-        ))}
+        {filteredCategories.map((category, idx) => {
+          // Sanitize local title for matching
+          const cleanKey = category.title.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+          const examDate = examDates[cleanKey] || null;
+
+          return (
+            <ExamCategoryCard 
+              key={category.id}
+              category={category}
+              idx={idx}
+              isOpen={activeCipherId === category.id}
+              onToggle={() => setActiveCipherId(activeCipherId === category.id ? null : category.id)}
+              onViewSyllabus={() => onViewSyllabus(category.id)}
+              onRegister={onRegister}
+              isSelected={selectedCategory === category.id}
+              onSelect={() => onSelectCategory(selectedCategory === category.id ? null : category.id)}
+              onViewMPSC={onViewMPSC}
+              onViewPolice={onViewPolice}
+              onViewMAHATET={onViewMAHATET}
+              onViewDynamicExam={onViewDynamicExam}
+              examDate={examDate}
+            />
+          );
+        })}
       </div>
     </motion.div>
   );
