@@ -24,7 +24,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   isMenuOpen,
   setIsMenuOpen
 }) => {
-  const [showAdminTrigger, setShowAdminTrigger] = useState(false);
 
   const tickerItems = [
     { text: "Breaking: 2026 Batch Admissions Open", action: () => setIsAdmissionModalOpen(true), highlight: false },
@@ -90,10 +89,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             setView('home'); 
             setSelectedCategory(null); 
             setIsMenuOpen(false); 
-          }}
-          onDoubleClick={() => {
-            setShowAdminTrigger(!showAdminTrigger);
-            if (!showAdminTrigger) setTimeout(() => setShowAdminTrigger(false), 5000);
           }}>
           
           <BrandLogo className="w-12 h-12 md:w-16 md:h-16 group-hover:rotate-6 transition-transform" />
@@ -110,28 +105,13 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="text-[22px] font-black text-ink leading-none uppercase tracking-tighter">Academy</span>
             </div>
           </div>
-
-          <AnimatePresence>
-            {showAdminTrigger && (
-              <motion.button
-                key="admin-trigger-button"
-                initial={{ opacity: 0, scale: 0, y: 10 }}
-                animate={{ opacity: 1, scale: 1.1, y: 0 }}
-                exit={{ opacity: 0, scale: 0, y: 10 }}
-                onClick={(e) => { e.stopPropagation(); setView('adminLogin'); }}
-                className="absolute -bottom-16 bg-red-600 text-white text-[10px] font-black py-1 px-3 border-2 border-ink shadow-[4px_4px_0_0_#1A1A1A] uppercase tracking-tighter whitespace-nowrap z-50 hover:bg-black transition-colors"
-              >
-                Access Admin
-              </motion.button>
-            )}
-          </AnimatePresence>
         </div>
 
         <nav className="flex-grow w-full px-6 flex flex-col gap-2">
           {[
             { id: 'home', label: 'Home', icon: '◰' },
             { id: 'about', label: 'About Us', icon: '◎' },
-            { id: 'courses', label: 'Explore the government', icon: '⌬' },
+            { id: 'courses', label: 'Explore the government exams', icon: '⌬' },
             { id: 'courseDetailPolice', label: 'Police Bharti', icon: '🛡️' },
             { id: 'syllabus', label: 'Book', icon: '◈' }
           ].map((item) => (

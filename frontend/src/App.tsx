@@ -33,6 +33,26 @@ import { EXAM_CATEGORIES } from './data/constants';
 export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [view, setView] = useState<'home' | 'courses' | 'syllabus' | 'about' | 'adminLogin' | 'courseDetailMPSC' | 'courseDetailPolice' | 'courseDetailMAHATET' | 'successStories' | 'dynamicExamDetail'>('home');
+
+  // URL Path Routing for Admin Portal
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path === '/admin-portal') {
+      setView('adminLogin');
+    }
+  }, []);
+
+  // Update URL when view changes (simple history management)
+  useEffect(() => {
+    if (view === 'adminLogin') {
+      if (window.location.pathname !== '/admin-portal') {
+        window.history.pushState({}, '', '/admin-portal');
+      }
+    } else if (window.location.pathname === '/admin-portal') {
+      window.history.pushState({}, '', '/');
+    }
+  }, [view]);
+
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [selectedSyllabusId, setSelectedSyllabusId] = useState<number | null>(null);
   const [selectedExamName, setSelectedExamName] = useState<string>('');
@@ -78,16 +98,19 @@ export default function App() {
 
   const [showMandatoryLogin, setShowMandatoryLogin] = useState(false);
   const [dynamicCourses, setDynamicCourses] = useState<any[]>([]);
+  const [quickAccessList, setQuickAccessList] = useState<any[]>([]);
 
   const fetchAllContent = async () => {
     try {
-      const [coursesResp, upscResp] = await Promise.all([
+      const [coursesResp, upscResp, quickResp] = await Promise.all([
         fetch('/api/content/courses'),
-        fetch('/api/content/upsc_hub')
+        fetch('/api/content/upsc_hub'),
+        fetch('/api/content/quick_exam_access')
       ]);
-      const [coursesData, upscData] = await Promise.all([
+      const [coursesData, upscData, quickData] = await Promise.all([
         coursesResp.json(),
-        upscResp.json()
+        upscResp.json(),
+        quickResp.json()
       ]);
       
       const combined = [...(coursesData.items || []), ...(upscData.items || [])].map(item => ({
@@ -97,6 +120,7 @@ export default function App() {
         isNew: true
       }));
       setDynamicCourses(combined);
+      setQuickAccessList(quickData.items || []);
     } catch (err) {
       console.error("Failed to fetch dynamic content:", err);
     }
@@ -171,7 +195,7 @@ export default function App() {
         </AnimatePresence>
 
         {view === 'adminLogin' ? (
-          <AdminPortal onBack={() => setView('home')} />
+          <AdminPortal onBack={() => setView('home')} onUpdate={fetchAllContent} />
         ) : (
           <>
             <Navbar 
@@ -196,19 +220,22 @@ export default function App() {
                 <AnimatePresence mode="wait">
                   {view === 'home' && (
                     <Home 
-                      setView={setView}
-                      setSelectedCategory={setSelectedCategory}
+                      setView={setView} 
+                      setSelectedCategory={setSelectedCategory} 
                       setIsRegistrationModalOpen={setIsRegistrationModalOpen}
                       setIsAdmissionModalOpen={setIsAdmissionModalOpen}
                       setIsAddStoryModalOpen={setIsAddStoryModalOpen}
                       dynamicCourses={dynamicCourses}
                       stories={stories.slice(0, 2)}
+                      setSelectedExamName={setSelectedExamName}
+                      quickAccessList={quickAccessList}
                     />
                   )}
                   {view === 'courses' && (
                     <Courses 
                       selectedCategory={selectedCategory}
                       activeNavCategory={EXAM_CATEGORIES[0].id}
+                      dynamicCourses={dynamicCourses}
                       onViewSyllabus={(id) => {
                         setSelectedSyllabusId(id);
                         if (id === 1) {

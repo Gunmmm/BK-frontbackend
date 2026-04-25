@@ -15,6 +15,8 @@ interface HomeProps {
   setIsAddStoryModalOpen: (open: boolean) => void;
   dynamicCourses: any[];
   stories: Story[];
+  setSelectedExamName: (name: string) => void;
+  quickAccessList: any[];
 }
 
 export const Home: React.FC<HomeProps> = ({
@@ -24,9 +26,18 @@ export const Home: React.FC<HomeProps> = ({
   setIsAdmissionModalOpen,
   setIsAddStoryModalOpen,
   dynamicCourses,
-  stories
+  stories,
+  setSelectedExamName,
+  quickAccessList
 }) => {
-  const [selectedTab, setSelectedTab] = React.useState<'psi' | 'tet' | 'police'>('psi');
+  const [selectedTab, setSelectedTab] = React.useState<string>('psi');
+
+  // Sync selected tab with first item in dynamic list if available
+  React.useEffect(() => {
+    if (quickAccessList && quickAccessList.length > 0) {
+      setSelectedTab(quickAccessList[0].category);
+    }
+  }, [quickAccessList]);
 
   return (
     <motion.div
@@ -35,6 +46,7 @@ export const Home: React.FC<HomeProps> = ({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
+      className="relative"
     >
       <HomeHero 
         setView={setView} 
@@ -44,43 +56,50 @@ export const Home: React.FC<HomeProps> = ({
       />
 
       {/* Career Excellence Section */}
-      <section className="pt-2 pb-6 px-6 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col items-center justify-center text-center mb-6 gap-0">
-            <div className="max-w-3xl flex flex-col items-center">
-              <div className="divider-line mb-0 mx-auto" />
-              <h2 className="section-title !text-5xl md:!text-6xl lg:!text-7xl !mb-3">
-                <span className="text-ink">COURSES</span>
-              </h2>
-              <div className="divider-line mb-1 mx-auto" />
-              <p className="text-muted text-xl font-body leading-relaxed max-w-2xl mx-auto">
-                Our high-quality courses help you gain the{' '}
-                <span className="text-ink font-semibold">best skills</span> for a successful career. 
-                We help you turn your hard work into real success.
-              </p>
+      {dynamicCourses && dynamicCourses.length > 0 && (
+        <section className="pt-2 pb-6 px-6 relative overflow-hidden">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex flex-col items-center justify-center text-center mb-6 gap-0">
+              <div className="max-w-3xl flex flex-col items-center">
+                <div className="divider-line mb-0 mx-auto" />
+                <h2 className="section-title !text-5xl md:!text-6xl lg:!text-7xl !mb-3">
+                  <span className="text-ink">COURSES</span>
+                </h2>
+                <div className="divider-line mb-1 mx-auto" />
+                <p className="text-muted text-xl font-body leading-relaxed max-w-2xl mx-auto">
+                  Our high-quality courses help you gain the{' '}
+                  <span className="text-ink font-semibold">best skills</span> for a successful career. 
+                  We help you turn your hard work into real success.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {dynamicCourses.map((course, index) => (
+                <CourseCard 
+                  key={course._id || course.id} 
+                  course={course} 
+                  index={index} 
+                  onClick={() => {
+                    if (course.id === 100) {
+                      setView('courseDetailPolice');
+                    } else if (course._id) {
+                      // It's a dynamic course from admin panel
+                      setSelectedExamName(course.subCategory || course.title);
+                      setView('dynamicExamDetail');
+                    } else {
+                      setSelectedCategory(course.id);
+                      setView('courses');
+                    }
+                    window.scrollTo({ top: 0, behavior: 'instant' });
+                  }}
+                />
+              ))}
             </div>
           </div>
+        </section>
+      )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[...dynamicCourses, ...COURSES].map((course, index) => (
-              <CourseCard 
-                key={course._id || course.id} 
-                course={course} 
-                index={index} 
-                onClick={() => {
-                  if (course.id === 100) {
-                    setView('courseDetailPolice');
-                  } else {
-                    setSelectedCategory(course.id);
-                    setView('courses');
-                  }
-                  window.scrollTo({ top: 0, behavior: 'instant' });
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Quick Exam Portal: 3 Tabs Section */}
       <section className="py-12 px-4 bg-white relative">
@@ -93,21 +112,21 @@ export const Home: React.FC<HomeProps> = ({
              
              {/* Tab Switcher */}
              <div className="flex flex-wrap justify-center gap-2 bg-ink/5 p-1.5 border-4 border-ink shadow-[4px_4px_0_0_#1A1A1A]">
-                {[
-                  { id: 'psi', label: 'PSI / STI / ASO' },
-                  { id: 'tet', label: 'TET / CTET' },
-                  { id: 'police', label: 'POLICE BHARTI' }
-                ].map(tab => (
+                {(quickAccessList && quickAccessList.length > 0 ? quickAccessList : [
+                  { category: 'psi', title: 'PSI / STI / ASO' },
+                  { category: 'tet', title: 'TET / CTET' },
+                  { category: 'police', title: 'POLICE BHARTI' }
+                ]).map(tab => (
                   <button
-                    key={tab.id}
-                    onClick={() => setSelectedTab(tab.id as any)}
+                    key={tab.category}
+                    onClick={() => setSelectedTab(tab.category)}
                     className={`px-6 py-3 font-display font-black text-[10px] uppercase tracking-widest transition-all ${
-                      selectedTab === tab.id 
+                      selectedTab === tab.category 
                         ? 'bg-brand text-ink border-2 border-ink shadow-[2px_2px_0_0_#1A1A1A]' 
                         : 'text-ink/40 hover:text-ink'
                     }`}
                   >
-                    {tab.label}
+                    {tab.title}
                   </button>
                 ))}
              </div>
@@ -122,167 +141,205 @@ export const Home: React.FC<HomeProps> = ({
               transition={{ duration: 0.2 }}
               className="max-w-5xl mx-auto"
             >
-              {selectedTab === 'psi' && (
-                <div 
-                  onClick={() => setView('courseDetailMPSC')}
-                  className="bg-white border-4 border-ink shadow-[12px_12px_0_0_#1A1A1A] overflow-hidden cursor-pointer group/card transition-transform hover:-translate-y-1"
-                >
-                  <div className="bg-ink text-white p-4 flex justify-between items-center group-hover/card:bg-brand group-hover/card:text-ink transition-colors">
-                     <h3 className="text-lg md:text-2xl font-display font-black leading-none uppercase">
-                       MPSC <span className="text-brand group-hover/card:text-ink">(MAHARASHTRA SERVICES)</span>
-                     </h3>
-                     <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-mono text-brand font-bold uppercase tracking-widest bg-white/10 px-3 py-1 border border-brand/30 group-hover/card:border-ink/30 group-hover/card:text-ink">GROUP B & C</span>
-                        <ExternalLink size={14} className="opacity-0 group-hover/card:opacity-100 transition-opacity" />
-                     </div>
-                  </div>
-                  
-                  <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-8 md:divide-x-4 divide-ink/5 items-start">
-                    {/* Group B */}
-                    <div className="space-y-6">
-                      <div className="flex items-center gap-3">
-                         <div className="bg-brand text-ink px-4 py-1 text-[10px] font-black uppercase border-2 border-ink shadow-[2px_2px_0_0_#000]">MPSC GROUP B</div>
-                         <span className="text-[10px] font-bold text-muted">PSI / STI / ASO</span>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 gap-6">
-                         <div className="space-y-3">
-                            <h4 className="text-[10px] font-mono font-black text-brand uppercase border-b border-ink/10 pb-1">ELIGIBILITY (पात्रता)</h4>
-                            <div className="space-y-2">
-                               <div className="flex justify-between text-xs font-bold border-b border-ink/5 pb-1"><span>Graduate (कोणतीही पदवी)</span> <CheckCircle2 size={12} className="text-brand"/></div>
-                               <div className="flex justify-between text-xs font-bold border-b border-ink/5 pb-1"><span>Age: 19-31 (PSI), 19-38 (Others)</span> <Clock size={12} className="text-brand"/></div>
-                               <div className="flex justify-between text-xs font-bold"><span>Height (PSI): 165cm (M), 157cm (F)</span> <Ruler size={12} className="text-brand"/></div>
-                            </div>
+              {/* DYNAMIC CONTENT FROM ADMIN */}
+              {quickAccessList.some(q => q.category === selectedTab) ? (
+                quickAccessList.filter(q => q.category === selectedTab).map(item => (
+                  <div 
+                    key={item._id}
+                    className="bg-white border-4 border-ink shadow-[12px_12px_0_0_#1A1A1A] overflow-hidden group/card transition-transform hover:-translate-y-1"
+                  >
+                    <div className="bg-ink text-white p-4 flex justify-between items-center group-hover/card:bg-brand group-hover/card:text-ink transition-colors">
+                       <h3 className="text-lg md:text-2xl font-display font-black leading-none uppercase">
+                         {item.title}
+                       </h3>
+                       {item.subCategory && (
+                         <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-mono text-brand font-bold uppercase tracking-widest bg-white/10 px-3 py-1 border border-brand/30 group-hover/card:border-ink/30 group-hover/card:text-ink">{item.subCategory}</span>
                          </div>
-                         <div className="space-y-3">
-                            <h4 className="text-[10px] font-mono font-black text-brand uppercase border-b border-ink/10 pb-1">STAGES (परीक्षेचे स्वरूप)</h4>
-                            <div className="grid grid-cols-2 gap-2">
-                               <div className="bg-ink/5 border border-ink/10 p-2 text-center"><p className="text-[10px] text-muted">PRELIMS</p><p className="text-xs font-black">100 MARKS</p></div>
-                               <div className="bg-ink/5 border border-ink/10 p-2 text-center"><p className="text-[10px] text-muted">MAINS</p><p className="text-xs font-black">400 MARKS</p></div>
-                               <div className="bg-ink text-white p-2 text-center col-span-2"><p className="text-[9px] text-brand/70 font-black italic">PHYSICAL & INTERVIEW (ONLY PSI)</p></div>
-                            </div>
-                         </div>
-                      </div>
+                       )}
                     </div>
-
-                    {/* Group C */}
-                    <div className="space-y-6 md:pl-8">
-                      <div className="flex items-center gap-3">
-                         <div className="bg-ink text-white px-4 py-1 text-[10px] font-black uppercase border-2 border-brand shadow-[2px_2px_0_0_#F7931A]">MPSC GROUP C</div>
-                         <span className="text-[10px] font-bold text-muted">CLERK / TAX ASST</span>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 gap-6">
-                         <div className="space-y-3">
-                            <h4 className="text-[10px] font-mono font-black text-brand uppercase border-b border-ink/10 pb-1">ELIGIBILITY (पात्रता)</h4>
-                            <div className="space-y-2">
-                               <div className="flex justify-between text-xs font-bold border-b border-ink/5 pb-1"><span>Graduate + Typing (Clerk/Tax)</span> <CheckCircle2 size={12} className="text-brand"/></div>
-                               <div className="flex justify-between text-xs font-bold border-b border-ink/5 pb-1"><span>Age: 19 - 38 Years</span> <Clock size={12} className="text-brand"/></div>
-                               <div className="flex justify-between text-xs font-bold italic text-ink/40 italic"><span>Excise Insp: Height Req Appears</span></div>
+                    
+                    <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-8 md:divide-x-4 divide-ink/5 items-start">
+                       {item.dynamicSections?.map((module: any, mIdx: number) => (
+                         <div key={mIdx} className={`space-y-6 ${mIdx > 0 ? 'md:pl-8' : ''}`}>
+                            <div className="flex items-center gap-3">
+                               <div className={`${mIdx % 2 === 0 ? 'bg-brand text-ink' : 'bg-ink text-white'} px-4 py-1 text-[10px] font-black uppercase border-2 border-ink shadow-[2px_2px_0_0_#000]`}>
+                                 {module.title}
+                               </div>
                             </div>
+                            <div 
+                              className="prose prose-sm max-w-none text-xs font-bold leading-relaxed space-y-4"
+                              dangerouslySetInnerHTML={{ __html: module.content }}
+                            />
                          </div>
-                         <div className="space-y-3">
-                            <h4 className="text-[10px] font-mono font-black text-brand uppercase border-b border-ink/10 pb-1">STAGES (परीक्षेचे स्वरूप)</h4>
-                            <div className="grid grid-cols-2 gap-2">
-                               <div className="bg-brand/10 border border-brand/20 p-2 text-center"><p className="text-[10px] text-muted">PRELIMS</p><p className="text-xs font-black">100 MARKS</p></div>
-                               <div className="bg-brand/10 border border-brand/20 p-2 text-center"><p className="text-[10px] text-muted">MAINS</p><p className="text-xs font-black">200 MARKS</p></div>
-                               <div className="bg-ink text-brand p-2 text-center col-span-2"><p className="text-[9px] font-black italic">SKILL TEST & TYPING REQ.</p></div>
-                            </div>
-                         </div>
-                      </div>
+                       ))}
                     </div>
                   </div>
-                  <div className="bg-ink/5 p-4 text-center border-t border-ink/10 group-hover/card:bg-brand transition-colors">
-                     <span className="text-[10px] font-display font-bold uppercase tracking-widest text-ink/60 group-hover/card:text-ink">Click for Detailed Syllabus & Exam Dates →</span>
-                  </div>
-                </div>
-              )}
-
-              {selectedTab === 'tet' && (
-                <div 
-                  onClick={() => setView('courseDetailMAHATET')}
-                  className="bg-white border-4 border-ink shadow-[12px_12px_0_0_#1A1A1A] overflow-hidden cursor-pointer group/card transition-transform hover:-translate-y-1"
-                >
-                  <div className="bg-[#5c4033] text-white p-4 flex justify-between items-center group-hover/card:bg-brand group-hover/card:text-ink transition-colors">
-                     <h3 className="text-lg md:text-2xl font-display font-black leading-none uppercase">
-                       TEACHING <span className="text-brand group-hover/card:text-brand-dark">& EDUCATION</span>
-                     </h3>
-                     <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-mono text-brand font-bold uppercase tracking-widest bg-white/10 px-3 py-1 border border-brand/30 group-hover/card:border-ink/30 group-hover/card:text-ink">MAHA TET / CTET 2026</span>
-                        <ExternalLink size={14} className="opacity-0 group-hover/card:opacity-100 transition-opacity" />
-                     </div>
-                  </div>
-                  <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-8 md:divide-x-4 divide-ink/5 items-start">
-                      <div className="space-y-4">
-                        <div className="bg-brand text-ink px-4 py-1 text-[10px] font-black uppercase inline-block border-2 border-ink">PAPER I (PRIMARY)</div>
-                        <div className="space-y-3">
-                           <h4 className="text-[10px] font-mono font-black text-brand uppercase">ELIGIBILITY</h4>
-                           <p className="text-xs font-bold leading-relaxed">HSC (12th) 50% + D.T.Ed / D.Ed 2-Year Diploma.</p>
+                ))
+              ) : (
+                /* FALLBACK HARDCODED CONTENT */
+                <>
+                 {selectedTab === 'psi' && (
+                   <div 
+                     onClick={() => setView('courseDetailMPSC')}
+                     className="bg-white border-4 border-ink shadow-[12px_12px_0_0_#1A1A1A] overflow-hidden cursor-pointer group/card transition-transform hover:-translate-y-1"
+                   >
+                     <div className="bg-ink text-white p-4 flex justify-between items-center group-hover/card:bg-brand group-hover/card:text-ink transition-colors">
+                        <h3 className="text-lg md:text-2xl font-display font-black leading-none uppercase">
+                          MPSC <span className="text-brand group-hover/card:text-ink">(MAHARASHTRA SERVICES)</span>
+                        </h3>
+                        <div className="flex items-center gap-2">
+                           <span className="text-[10px] font-mono text-brand font-bold uppercase tracking-widest bg-white/10 px-3 py-1 border border-brand/30 group-hover/card:border-ink/30 group-hover/card:text-ink">GROUP B & C</span>
+                           <ExternalLink size={14} className="opacity-0 group-hover/card:opacity-100 transition-opacity" />
                         </div>
-                      </div>
-                      <div className="space-y-4 md:pl-8">
-                        <div className="bg-ink text-white px-4 py-1 text-[10px] font-black uppercase inline-block border-2 border-brand">PAPER II (UPPER PR.)</div>
-                        <div className="space-y-3">
-                           <h4 className="text-[10px] font-mono font-black text-brand uppercase">ELIGIBILITY</h4>
-                           <p className="text-xs font-bold leading-relaxed">Graduation (Degree) + B.Ed / Graduation + 2-Pr D.Ed.</p>
-                        </div>
-                      </div>
-                      <div className="md:col-span-2 border-t-2 border-ink/5 pt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-                         <div className="p-3 bg-brand/5 border border-brand/10 text-center"><p className="text-[9px] text-muted">TOTAL MARKS</p><p className="text-sm font-black">150</p></div>
-                         <div className="p-3 bg-brand/5 border border-brand/10 text-center"><p className="text-[9px] text-muted">TIME</p><p className="text-sm font-black">150 MIN</p></div>
-                         <div className="p-3 bg-brand/5 border border-brand/10 text-center"><p className="text-[9px] text-muted">NEG. MARKS</p><p className="text-sm font-black text-red-600">NONE</p></div>
-                         <div className="p-3 bg-brand/5 border border-brand/10 text-center"><p className="text-[9px] text-muted">PASSING</p><p className="text-sm font-black text-green-600">60% GEN</p></div>
-                      </div>
-                  </div>
-                  <div className="bg-ink/5 p-4 text-center border-t border-ink/10 group-hover/card:bg-brand transition-colors">
-                     <span className="text-[10px] font-display font-bold uppercase tracking-widest text-ink/60 group-hover/card:text-ink">Click for Detailed Syllabus & Exam Dates →</span>
-                  </div>
-                </div>
-              )}
-
-              {selectedTab === 'police' && (
-                <div 
-                  onClick={() => setView('courseDetailPolice')}
-                  className="bg-white border-4 border-ink shadow-[12px_12px_0_0_#1A1A1A] overflow-hidden cursor-pointer group/card transition-transform hover:-translate-y-1"
-                >
-                  <div className="bg-[#1a1a1a] text-white p-4 flex justify-between items-center group-hover/card:bg-brand group-hover/card:text-ink transition-colors">
-                     <h3 className="text-lg md:text-2xl font-display font-black leading-none uppercase italic">
-                       POLICE <span className="text-brand group-hover/card:text-ink">BHARTI 2026</span>
-                     </h3>
-                     <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-mono text-brand font-bold uppercase tracking-widest bg-white/10 px-3 py-1 border border-brand/30 group-hover/card:border-ink/30 group-hover/card:text-ink">HSC LEVEL RECRUITMENT</span>
-                        <ExternalLink size={14} className="opacity-0 group-hover/card:opacity-100 transition-opacity" />
                      </div>
-                  </div>
-                  <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-                      <div className="space-y-4">
-                         <div className="bg-brand text-ink px-4 py-1 text-[10px] font-black uppercase inline-block border-2 border-ink">ELIGIBILITY (पात्रता)</div>
-                         <div className="space-y-2">
-                             <div className="flex justify-between text-xs font-bold border-b border-ink/5 pb-2"><span>12th Pass (HSC)</span> <CheckCircle2 size={12} className="text-brand"/></div>
-                             <div className="flex justify-between text-xs font-bold border-b border-ink/5 pb-2"><span>Age: 18 - 28 Years</span> <Clock size={12} className="text-brand"/></div>
-                             <div className="flex justify-between text-xs font-bold border-b border-ink/5 pb-2"><span>Height: 165cm (M), 155cm (F)</span> <Ruler size={12} className="text-brand"/></div>
-                             <div className="flex justify-between text-xs font-bold"><span>Chest: 79cm (+5cm Expand)</span> <Target size={12} className="text-brand"/></div>
+                     
+                     <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-8 md:divide-x-4 divide-ink/5 items-start">
+                       <div className="space-y-6">
+                         <div className="flex items-center gap-3">
+                            <div className="bg-brand text-ink px-4 py-1 text-[10px] font-black uppercase border-2 border-ink shadow-[2px_2px_0_0_#000]">MPSC GROUP B</div>
+                            <span className="text-[10px] font-bold text-muted">PSI / STI / ASO</span>
                          </div>
-                      </div>
-                      <div className="space-y-4">
-                         <div className="bg-ink text-white px-4 py-1 text-[10px] font-black uppercase inline-block border-2 border-brand">EXAM PATTERN (स्वरूप)</div>
-                         <div className="space-y-3">
-                             <div className="flex items-center gap-3 p-3 bg-ink/5 border border-ink/10">
-                                <span className="text-sm font-black text-brand">50M</span>
-                                <div className="text-[10px] font-bold text-ink/70">PHYSICAL GROUND TEST (पॅरोडे टेस्ट)</div>
-                             </div>
-                             <div className="flex items-center gap-3 p-3 bg-ink/5 border border-ink/10">
-                                <span className="text-sm font-black text-brand">100M</span>
-                                <div className="text-[10px] font-bold text-ink/70">WRITTEN EXAMINATION (लेखी परीक्षा)</div>
-                             </div>
-                             <p className="text-[10px] text-muted font-bold italic">उमेदवारांना लेखी परीक्षेसाठी पात्र होण्यासाठी शारीरिक चाचणीत किमान ५०% गुण मिळवणे आवश्यक आहे.</p>
+                         
+                         <div className="grid grid-cols-1 gap-6">
+                            <div className="space-y-3">
+                               <h4 className="text-[10px] font-mono font-black text-brand uppercase border-b border-ink/10 pb-1">ELIGIBILITY (पात्रता)</h4>
+                               <div className="space-y-2">
+                                  <div className="flex justify-between text-xs font-bold border-b border-ink/5 pb-1"><span>Graduate (कोणतीही पदवी)</span> <CheckCircle2 size={12} className="text-brand"/></div>
+                                  <div className="flex justify-between text-xs font-bold border-b border-ink/5 pb-1"><span>Age: 19-31 (PSI), 19-38 (Others)</span> <Clock size={12} className="text-brand"/></div>
+                                  <div className="flex justify-between text-xs font-bold"><span>Height (PSI): 165cm (M), 157cm (F)</span> <Ruler size={12} className="text-brand"/></div>
+                               </div>
+                            </div>
+                            <div className="space-y-3">
+                               <h4 className="text-[10px] font-mono font-black text-brand uppercase border-b border-ink/10 pb-1">STAGES (परीक्षेचे स्वरूप)</h4>
+                               <div className="grid grid-cols-2 gap-2">
+                                  <div className="bg-ink/5 border border-ink/10 p-2 text-center"><p className="text-[10px] text-muted">PRELIMS</p><p className="text-xs font-black">100 MARKS</p></div>
+                                  <div className="bg-ink/5 border border-ink/10 p-2 text-center"><p className="text-[10px] text-muted">MAINS</p><p className="text-xs font-black">400 MARKS</p></div>
+                                  <div className="bg-ink text-white p-2 text-center col-span-2"><p className="text-[9px] text-brand/70 font-black italic">PHYSICAL & INTERVIEW (ONLY PSI)</p></div>
+                               </div>
+                            </div>
                          </div>
-                      </div>
-                  </div>
-                  <div className="bg-ink/5 p-4 text-center border-t border-ink/10 group-hover/card:bg-brand transition-colors">
-                     <span className="text-[10px] font-display font-bold uppercase tracking-widest text-ink/60 group-hover/card:text-ink">Click for Detailed Syllabus & Exam Dates →</span>
-                  </div>
-                </div>
+                       </div>
+
+                       <div className="space-y-6 md:pl-8">
+                         <div className="flex items-center gap-3">
+                            <div className="bg-ink text-white px-4 py-1 text-[10px] font-black uppercase border-2 border-brand shadow-[2px_2px_0_0_#F7931A]">MPSC GROUP C</div>
+                            <span className="text-[10px] font-bold text-muted">CLERK / TAX ASST</span>
+                         </div>
+                         
+                         <div className="grid grid-cols-1 gap-6">
+                            <div className="space-y-3">
+                               <h4 className="text-[10px] font-mono font-black text-brand uppercase border-b border-ink/10 pb-1">ELIGIBILITY (पात्रता)</h4>
+                               <div className="space-y-2">
+                                  <div className="flex justify-between text-xs font-bold border-b border-ink/5 pb-1"><span>Graduate + Typing (Clerk/Tax)</span> <CheckCircle2 size={12} className="text-brand"/></div>
+                                  <div className="flex justify-between text-xs font-bold border-b border-ink/5 pb-1"><span>Age: 19 - 38 Years</span> <Clock size={12} className="text-brand"/></div>
+                                  <div className="flex justify-between text-xs font-bold italic text-ink/40 italic"><span>Excise Insp: Height Req Appears</span></div>
+                               </div>
+                            </div>
+                            <div className="space-y-3">
+                               <h4 className="text-[10px] font-mono font-black text-brand uppercase border-b border-ink/10 pb-1">STAGES (परीक्षेचे स्वरूप)</h4>
+                               <div className="grid grid-cols-2 gap-2">
+                                  <div className="bg-brand/10 border border-brand/20 p-2 text-center"><p className="text-[10px] text-muted">PRELIMS</p><p className="text-xs font-black">100 MARKS</p></div>
+                                  <div className="bg-brand/10 border border-brand/20 p-2 text-center"><p className="text-[10px] text-muted">MAINS</p><p className="text-xs font-black">200 MARKS</p></div>
+                                  <div className="bg-ink text-brand p-2 text-center col-span-2"><p className="text-[9px] font-black italic">SKILL TEST & TYPING REQ.</p></div>
+                               </div>
+                            </div>
+                         </div>
+                       </div>
+                     </div>
+                     <div className="bg-ink/5 p-4 text-center border-t border-ink/10 group-hover/card:bg-brand transition-colors">
+                        <span className="text-[10px] font-display font-bold uppercase tracking-widest text-ink/60 group-hover/card:text-ink">Click for Detailed Syllabus & Exam Dates →</span>
+                     </div>
+                   </div>
+                 )}
+
+                 {selectedTab === 'tet' && (
+                   <div 
+                     onClick={() => setView('courseDetailMAHATET')}
+                     className="bg-white border-4 border-ink shadow-[12px_12px_0_0_#1A1A1A] overflow-hidden cursor-pointer group/card transition-transform hover:-translate-y-1"
+                   >
+                     <div className="bg-[#5c4033] text-white p-4 flex justify-between items-center group-hover/card:bg-brand group-hover/card:text-ink transition-colors">
+                        <h3 className="text-lg md:text-2xl font-display font-black leading-none uppercase">
+                          TEACHING <span className="text-brand group-hover/card:text-brand-dark">& EDUCATION</span>
+                        </h3>
+                        <div className="flex items-center gap-2">
+                           <span className="text-[10px] font-mono text-brand font-bold uppercase tracking-widest bg-white/10 px-3 py-1 border border-brand/30 group-hover/card:border-ink/30 group-hover/card:text-ink">MAHA TET / CTET 2026</span>
+                           <ExternalLink size={14} className="opacity-0 group-hover/card:opacity-100 transition-opacity" />
+                        </div>
+                     </div>
+                     <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-8 md:divide-x-4 divide-ink/5 items-start">
+                         <div className="space-y-4">
+                           <div className="bg-brand text-ink px-4 py-1 text-[10px] font-black uppercase inline-block border-2 border-ink">PAPER I (PRIMARY)</div>
+                           <div className="space-y-3">
+                              <h4 className="text-[10px] font-mono font-black text-brand uppercase">ELIGIBILITY</h4>
+                              <p className="text-xs font-bold leading-relaxed">HSC (12th) 50% + D.T.Ed / D.Ed 2-Year Diploma.</p>
+                           </div>
+                         </div>
+                         <div className="space-y-4 md:pl-8">
+                           <div className="bg-ink text-white px-4 py-1 text-[10px] font-black uppercase inline-block border-2 border-brand">PAPER II (UPPER PR.)</div>
+                           <div className="space-y-3">
+                              <h4 className="text-[10px] font-mono font-black text-brand uppercase">ELIGIBILITY</h4>
+                              <p className="text-xs font-bold leading-relaxed">Graduation (Degree) + B.Ed / Graduation + 2-Pr D.Ed.</p>
+                           </div>
+                         </div>
+                         <div className="md:col-span-2 border-t-2 border-ink/5 pt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div className="p-3 bg-brand/5 border border-brand/10 text-center"><p className="text-[9px] text-muted">TOTAL MARKS</p><p className="text-sm font-black">150</p></div>
+                            <div className="p-3 bg-brand/5 border border-brand/10 text-center"><p className="text-[9px] text-muted">TIME</p><p className="text-sm font-black">150 MIN</p></div>
+                            <div className="p-3 bg-brand/5 border border-brand/10 text-center"><p className="text-[9px] text-muted">NEG. MARKS</p><p className="text-sm font-black text-red-600">NONE</p></div>
+                            <div className="p-3 bg-brand/5 border border-brand/10 text-center"><p className="text-[9px] text-muted">PASSING</p><p className="text-sm font-black text-green-600">60% GEN</p></div>
+                         </div>
+                     </div>
+                     <div className="bg-ink/5 p-4 text-center border-t border-ink/10 group-hover/card:bg-brand transition-colors">
+                        <span className="text-[10px] font-display font-bold uppercase tracking-widest text-ink/60 group-hover/card:text-ink">Click for Detailed Syllabus & Exam Dates →</span>
+                     </div>
+                   </div>
+                 )}
+
+                 {selectedTab === 'police' && (
+                   <div 
+                     onClick={() => setView('courseDetailPolice')}
+                     className="bg-white border-4 border-ink shadow-[12px_12px_0_0_#1A1A1A] overflow-hidden cursor-pointer group/card transition-transform hover:-translate-y-1"
+                   >
+                     <div className="bg-[#1a1a1a] text-white p-4 flex justify-between items-center group-hover/card:bg-brand group-hover/card:text-ink transition-colors">
+                        <h3 className="text-lg md:text-2xl font-display font-black leading-none uppercase italic">
+                          POLICE <span className="text-brand group-hover/card:text-ink">BHARTI 2026</span>
+                        </h3>
+                        <div className="flex items-center gap-2">
+                           <span className="text-[10px] font-mono text-brand font-bold uppercase tracking-widest bg-white/10 px-3 py-1 border border-brand/30 group-hover/card:border-ink/30 group-hover/card:text-ink">HSC LEVEL RECRUITMENT</span>
+                           <ExternalLink size={14} className="opacity-0 group-hover/card:opacity-100 transition-opacity" />
+                        </div>
+                     </div>
+                     <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                         <div className="space-y-4">
+                            <div className="bg-brand text-ink px-4 py-1 text-[10px] font-black uppercase inline-block border-2 border-ink">ELIGIBILITY (पात्रता)</div>
+                            <div className="space-y-2">
+                                <div className="flex justify-between text-xs font-bold border-b border-ink/5 pb-2"><span>12th Pass (HSC)</span> <CheckCircle2 size={12} className="text-brand"/></div>
+                                <div className="flex justify-between text-xs font-bold border-b border-ink/5 pb-2"><span>Age: 18 - 28 Years</span> <Clock size={12} className="text-brand"/></div>
+                                <div className="flex justify-between text-xs font-bold border-b border-ink/5 pb-2"><span>Height: 165cm (M), 155cm (F)</span> <Ruler size={12} className="text-brand"/></div>
+                                <div className="flex justify-between text-xs font-bold"><span>Chest: 79cm (+5cm Expand)</span> <Target size={12} className="text-brand"/></div>
+                            </div>
+                         </div>
+                         <div className="space-y-4">
+                            <div className="bg-ink text-white px-4 py-1 text-[10px] font-black uppercase inline-block border-2 border-brand">EXAM PATTERN (स्वरूप)</div>
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-3 p-3 bg-ink/5 border border-ink/10">
+                                   <span className="text-sm font-black text-brand">50M</span>
+                                   <div className="text-[10px] font-bold text-ink/70">PHYSICAL GROUND TEST (पॅरोडे टेस्ट)</div>
+                                </div>
+                                <div className="flex items-center gap-3 p-3 bg-ink/5 border border-ink/10">
+                                   <span className="text-sm font-black text-brand">100M</span>
+                                   <div className="text-[10px] font-bold text-ink/70">WRITTEN EXAMINATION (लेखी परीक्षा)</div>
+                                </div>
+                                <p className="text-[10px] text-muted font-bold italic">उमेदवारांना लेखी परीक्षेसाठी पात्र होण्यासाठी शारीरिक चाचणीत किमान ५०% गुण मिळवणे आवश्यक आहे.</p>
+                            </div>
+                         </div>
+                     </div>
+                     <div className="bg-ink/5 p-4 text-center border-t border-ink/10 group-hover/card:bg-brand transition-colors">
+                        <span className="text-[10px] font-display font-bold uppercase tracking-widest text-ink/60 group-hover/card:text-ink">Click for Detailed Syllabus & Exam Dates →</span>
+                     </div>
+                   </div>
+                 )}
+                </>
               )}
             </motion.div>
           </AnimatePresence>
@@ -426,28 +483,11 @@ export const Home: React.FC<HomeProps> = ({
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Dynamic Books from DB */}
-            <BookRoomGrid />
+            <BookRoomGrid setView={setView} />
           </div>
 
-          <div className="mt-16 bg-white border-4 border-ink p-8 flex flex-col md:flex-row items-center justify-between gap-8 shadow-[12px_12px_0_0_#1A1A1A]">
-             <div className="flex items-center gap-6">
-                <div className="w-16 h-16 bg-brand flex items-center justify-center shrink-0 border-2 border-ink">
-                   <Target size={32} className="text-ink" />
-                </div>
-                <div>
-                   <h3 className="font-display font-black text-xl uppercase">Request a Resource</h3>
-                   <p className="text-xs text-muted font-mono uppercase mt-1">Can't find a specific book? Let us know.</p>
-                </div>
-             </div>
-             <button 
-               onClick={() => setIsRegistrationModalOpen(true)}
-               className="w-full md:w-auto bg-ink text-white px-10 py-4 text-[10px] font-black uppercase border-2 border-ink hover:bg-brand hover:text-ink transition-all"
-             >
-               Contact Librarian
-             </button>
-          </div>
         </div>
       </section>
 
@@ -580,7 +620,7 @@ const FAQItem: React.FC<{ question: string; answer: string }> = ({ question, ans
 
 export default Home;
 
-const BookRoomGrid = () => {
+const BookRoomGrid: React.FC<{ setView: (v: any) => void }> = ({ setView }) => {
   const [books, setBooks] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
 
@@ -588,14 +628,14 @@ const BookRoomGrid = () => {
     fetch('/api/books')
       .then(res => res.json())
       .then(data => {
-        if (data.success) setBooks(data.items.slice(0, 4));
+        if (data.success) setBooks(data.items.slice(0, 3));
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, []);
 
   if (loading) {
-    return [1,2,3,4].map(i => (
+    return [1,2,3].map(i => (
       <div key={i} className="h-64 bg-white border-2 border-ink animate-pulse" />
     ));
   }
@@ -603,7 +643,14 @@ const BookRoomGrid = () => {
   return (
     <>
       {books.map((book) => (
-        <div key={book._id} className="bg-white border-2 border-ink p-6 flex flex-col justify-between hover:shadow-[8px_8px_0_0_#1A1A1A] hover:-translate-y-1 transition-all group">
+        <div 
+          key={book._id} 
+          onClick={() => {
+            setView('syllabus');
+            window.scrollTo({ top: 0, behavior: 'instant' });
+          }}
+          className="bg-white border-2 border-ink p-6 flex flex-col justify-between hover:shadow-[8px_8px_0_0_#1A1A1A] hover:-translate-y-1 transition-all group cursor-pointer"
+        >
           <div>
             <div className="flex justify-between items-start mb-4">
                <div className="w-10 h-10 bg-brand/10 flex items-center justify-center text-brand border border-brand/20">
@@ -616,24 +663,12 @@ const BookRoomGrid = () => {
             </h4>
             {book.description && <p className="text-[10px] text-muted mt-3 line-clamp-2 italic">{book.description}</p>}
           </div>
-          <a 
-            href={book.pdfUrl} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="mt-6 flex items-center justify-between group/btn"
-            onClick={() => {
-              fetch('/api/track/download', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ formType: book.title, studentName: 'Home User' })
-              });
-            }}
-          >
-            <span className="text-[10px] font-black uppercase tracking-widest group-hover/btn:underline">Download PDF</span>
+          <div className="mt-6 flex items-center justify-between group/btn">
+            <span className="text-[10px] font-black uppercase tracking-widest group-hover/btn:underline">View in Library</span>
             <div className="w-8 h-8 bg-ink text-white flex items-center justify-center group-hover/btn:bg-brand group-hover/btn:text-ink transition-colors">
                <ArrowRight size={14} />
             </div>
-          </a>
+          </div>
         </div>
       ))}
       {books.length === 0 && (

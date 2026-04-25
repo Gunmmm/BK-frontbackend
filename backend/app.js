@@ -16,13 +16,21 @@ app.use(express.json());
 // Version identification & Logger
 app.use((req, res, next) => {
   res.setHeader('X-Server-Version', '2.0.1-mongoose');
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log(`[DEBUG] ${req.method} ${req.url} (Content-Type: ${req.headers['content-type']})`);
   next();
 });
 
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ success: true, version: '2.0.1-mongoose', timestamp: new Date() });
+});
+
+app.get('/api/ping', (req, res) => {
+  res.json({ success: true, message: 'Backend is ALIVE' });
+});
+
+app.post('/api/post-ping', (req, res) => {
+  res.json({ success: true, message: 'POST PING ALIVE' });
 });
 
 // Lightweight inquiry endpoint used by the website modal.
@@ -98,6 +106,21 @@ app.use('/api', systemRoutes);
 
 // Serve static uploads
 app.use('/uploads', express.static(path.join(__dirname, '../frontend/public/uploads')));
+
+// DIAGNOSTIC: Print all routes
+console.log("\n--- REGISTERED ROUTES ---");
+const printRoutes = (stack, prefix = '') => {
+  stack.forEach(layer => {
+    if (layer.route) {
+      const methods = Object.keys(layer.route.methods).join(',').toUpperCase();
+      console.log(`${methods.padEnd(7)} ${prefix}${layer.route.path}`);
+    } else if (layer.name === 'router' && layer.handle.stack) {
+      printRoutes(layer.handle.stack, prefix + (layer.regexp.source.replace('^\\', '').replace('\\/?(?=\\/|$)', '').replace(/\\\//g, '/')));
+    }
+  });
+};
+printRoutes(app._router.stack);
+console.log("-------------------------\n");
 
 // Serve frontend in production
 if (process.env.NODE_ENV === 'production') {
