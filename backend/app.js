@@ -107,20 +107,6 @@ app.use('/api', systemRoutes);
 // Serve static uploads
 app.use('/uploads', express.static(path.join(__dirname, '../frontend/public/uploads')));
 
-// DIAGNOSTIC: Print all routes
-console.log("\n--- REGISTERED ROUTES ---");
-const printRoutes = (stack, prefix = '') => {
-  stack.forEach(layer => {
-    if (layer.route) {
-      const methods = Object.keys(layer.route.methods).join(',').toUpperCase();
-      console.log(`${methods.padEnd(7)} ${prefix}${layer.route.path}`);
-    } else if (layer.name === 'router' && layer.handle.stack) {
-      printRoutes(layer.handle.stack, prefix + (layer.regexp.source.replace('^\\', '').replace('\\/?(?=\\/|$)', '').replace(/\\\//g, '/')));
-    }
-  });
-};
-printRoutes(app._router.stack);
-console.log("-------------------------\n");
 
 // Serve frontend in production
 if (process.env.NODE_ENV === 'production') {
