@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import ExamCategoryCard from '../components/features/ExamCategoryCard';
+import CourseCard from '../components/CourseCard';
 import { EXAM_CATEGORIES } from '../data/constants';
 
 interface CoursesProps {
   selectedCategory: number | null;
   activeNavCategory: number;
+  dynamicCourses: any[];
   onViewSyllabus: (id: number) => void;
   onRegister: () => void;
   onSelectCategory: (id: number | null) => void;
@@ -18,6 +20,7 @@ interface CoursesProps {
 export const Courses: React.FC<CoursesProps> = ({
   selectedCategory,
   activeNavCategory,
+  dynamicCourses,
   onViewSyllabus,
   onRegister,
   onSelectCategory,
@@ -40,6 +43,10 @@ export const Courses: React.FC<CoursesProps> = ({
           fetch('/api/content/upsc_hub')
         ]);
         
+        [examsResp, coursesResp, upscResp].forEach(r => {
+          if (!r.ok) console.error(`[FETCH ERROR] ${r.url} returned status ${r.status}`);
+        });
+
         const [examsData, coursesData, upscData] = await Promise.all([
           examsResp.json(),
           coursesResp.json(),
@@ -98,7 +105,7 @@ export const Courses: React.FC<CoursesProps> = ({
         </div>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-start mb-32">
         {filteredCategories.map((category, idx) => {
           // Sanitize local title for matching
           const cleanKey = category.title.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -124,6 +131,36 @@ export const Courses: React.FC<CoursesProps> = ({
           );
         })}
       </div>
+
+      {/* Dynamic Courses Section */}
+      {dynamicCourses.length > 0 && !selectedCategory && (
+        <section className="mt-32">
+          <div className="flex flex-col mb-12">
+            <div className="w-24 h-2 bg-brand mb-6" />
+            <h2 className="text-4xl md:text-6xl font-display font-black text-ink uppercase tracking-tighter leading-none">
+              Premium <span className="text-brand">Strategic Programs</span>
+            </h2>
+            <p className="text-muted mt-6 text-lg font-body max-w-2xl">
+              Specialized coaching programs added via our administrative network.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {dynamicCourses.map((course, index) => (
+              <CourseCard 
+                key={course._id || course.id} 
+                course={course} 
+                index={index} 
+                onClick={() => {
+                  if (course.subCategory || course.title) {
+                    onViewDynamicExam && onViewDynamicExam(course.subCategory || course.title);
+                  }
+                }}
+              />
+            ))}
+          </div>
+        </section>
+      )}
     </motion.div>
   );
 };

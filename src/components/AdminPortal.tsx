@@ -9,9 +9,10 @@ import {
 
 interface AdminPortalProps {
   onBack: () => void;
+  onUpdate?: () => void;
 }
 
-export default function AdminPortal({ onBack }: AdminPortalProps) {
+export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [adminUser, setAdminUser] = useState<any>(null);
   const [token, setToken] = useState<string | null>(localStorage.getItem('bk_admin_token'));
@@ -43,7 +44,7 @@ export default function AdminPortal({ onBack }: AdminPortalProps) {
     examDate: '',
     dynamicSections: [{ title: '', content: '' }]
   });
-  const [bookForm, setBookForm] = useState({ title: '', category: 'UPSC', description: '', files: [] as File[] });
+  const [bookForm, setBookForm] = useState({ title: '', category: 'Book - UPSC', description: '', files: [] as File[] });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [newTicketAlert, setNewTicketAlert] = useState<any>(null);
   const [editingBookId, setEditingBookId] = useState<string | null>(null);
@@ -59,11 +60,25 @@ export default function AdminPortal({ onBack }: AdminPortalProps) {
 
   // Auth Effect
   useEffect(() => {
+    // DIAGNOSTIC CONNECTION TEST
+    const testConn = async () => {
+      try {
+        const r = await fetch('/api/ping');
+        const d = await r.json();
+        console.log("API CONNECTION TEST:", d.message);
+      } catch (e) {
+        console.error("API CONNECTION FAILED:", e);
+      }
+    };
+    testConn();
+
     if (token) {
+      // Decode or verify token
       setIsAuthenticated(true);
-      fetchDashboard();
-      fetchTickets();
+      setAdminUser({ username: 'Admin' });
       fetchRegistrations();
+      fetchTickets();
+      fetchDashboard();
       fetchAdmissions();
       fetchDownloads();
       fetchEnquiries();
@@ -368,6 +383,7 @@ export default function AdminPortal({ onBack }: AdminPortalProps) {
     });
   };
 
+
   const [examForm, setExamForm] = useState({
     category: 'UPSC Hub (IAS, IPS, IFS)',
     fullDetails: '',
@@ -521,7 +537,7 @@ export default function AdminPortal({ onBack }: AdminPortalProps) {
         const data = await resp.json();
         if (data.success) {
           alert("Book updated successfully");
-          setBookForm({ title: '', category: 'UPSC', description: '', files: [] });
+          setBookForm({ title: '', category: 'Book - UPSC', description: '', files: [] });
           setEditingBookId(null);
           fetchBooks();
         } else {
@@ -556,7 +572,7 @@ export default function AdminPortal({ onBack }: AdminPortalProps) {
         
         alert(`Upload complete. Success: ${successCount}, Failed: ${failCount}`);
         if (successCount > 0) {
-          setBookForm({ title: '', category: 'UPSC', description: '', files: [] });
+          setBookForm({ title: '', category: 'Book - UPSC', description: '', files: [] });
           fetchBooks();
         }
       }
@@ -1316,11 +1332,27 @@ export default function AdminPortal({ onBack }: AdminPortalProps) {
                     />
                     <select 
                       required 
-                      value={bookForm.category} 
-                      onChange={e => setBookForm({...bookForm, category: e.target.value})} 
+                      value={bookForm.category.includes(' - ') ? bookForm.category.split(' - ')[0] : 'Book'} 
+                      onChange={e => {
+                        const currentCat = bookForm.category.includes(' - ') ? bookForm.category.split(' - ')[1] : 'UPSC';
+                        setBookForm({...bookForm, category: `${e.target.value} - ${currentCat}`});
+                      }} 
                       className="border-2 border-ink p-3 text-sm font-mono uppercase bg-white"
                     >
-                      {['UPSC', 'MPSC', 'Banking', 'NDA', 'Police Bharti', 'Railway Bharti', 'Staff Selection', 'Other', 'Commerce', 'Science', 'State Board', 'CBSE Board', 'Question Papers'].map(cat => (
+                      <option value="Book">📕 Book</option>
+                      <option value="Question Paper">📝 Question Paper</option>
+                    </select>
+
+                    <select 
+                      required 
+                      value={bookForm.category.includes(' - ') ? bookForm.category.split(' - ')[1] : 'UPSC'} 
+                      onChange={e => {
+                        const currentType = bookForm.category.includes(' - ') ? bookForm.category.split(' - ')[0] : 'Book';
+                        setBookForm({...bookForm, category: `${currentType} - ${e.target.value}`});
+                      }} 
+                      className="border-2 border-ink p-3 text-sm font-mono uppercase bg-white"
+                    >
+                      {['UPSC', 'MPSC', 'Banking', 'Police Bharti', 'Railway Bharti', 'Staff Selection', 'State Board', 'CBSE Board', 'Other'].map(cat => (
                         <option key={cat} value={cat}>{cat}</option>
                       ))}
                     </select>
@@ -1366,7 +1398,7 @@ export default function AdminPortal({ onBack }: AdminPortalProps) {
                           type="button"
                           onClick={() => {
                             setEditingBookId(null);
-                            setBookForm({ title: '', category: 'UPSC', description: '', file: null });
+                             setBookForm({ title: '', category: 'Book - UPSC', description: '', files: [] });
                           }}
                           className="bg-ink text-white font-bold uppercase border-2 border-ink px-6 py-3 hover:-translate-y-1 transition-all shadow-[4px_4px_0_0_#1A1A1A]"
                         >
@@ -1811,8 +1843,9 @@ export default function AdminPortal({ onBack }: AdminPortalProps) {
                 </div>
               </div>
             )}
-        </main>
+
+          </main>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }

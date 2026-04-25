@@ -74,7 +74,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .sidebar-link {
-  @apply flex flex-col items-center gap-2 py-6 text-ink/40 hover:text-ink uppercase text-[10px] font-black tracking-[0.2em] transition-all duration-300 border-l-4 border-transparent;
+  @apply flex flex-col items-center gap-2 py-6 text-ink/40 hover:text-ink uppercase text-[12px] font-black tracking-[0.2em] transition-all duration-300 border-l-4 border-transparent;
 }
 
 .sidebar-link.active {

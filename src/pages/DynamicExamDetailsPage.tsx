@@ -34,41 +34,61 @@ const CountdownTimer: React.FC<{ examDate: string }> = ({ examDate }) => {
 
   if (timeLeft.passed) {
     return (
-      <div className="mb-10 p-6 bg-red-900/30 border border-red-500/40 text-center rounded-xl">
-        <p className="text-red-400 font-mono uppercase tracking-widest text-sm font-bold">⚠ This Exam Date Has Passed</p>
+      <div className="mb-10 p-8 bg-red-950/20 border-2 border-red-500/30 text-center rounded-2xl backdrop-blur-sm">
+        <p className="text-red-400 font-mono uppercase tracking-[0.3em] text-xs font-black flex items-center justify-center gap-3">
+          <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+          Strategic Window Closed: Exam Date Passed
+        </p>
       </div>
     );
   }
 
   const blocks = [
-    { label: 'Days', value: timeLeft.days },
-    { label: 'Hours', value: timeLeft.hours },
-    { label: 'Minutes', value: timeLeft.minutes },
-    { label: 'Seconds', value: timeLeft.seconds },
+    { label: 'DAYS', value: timeLeft.days },
+    { label: 'HOURS', value: timeLeft.hours },
+    { label: 'MINUTES', value: timeLeft.minutes },
+    { label: 'SECONDS', value: timeLeft.seconds },
   ];
 
   return (
-    <div className="mb-12 p-8 bg-[#0F1115] border border-[#F7931A]/30 rounded-2xl relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-[#F7931A]/5 to-transparent pointer-events-none" />
-      <div className="flex items-center gap-3 mb-6">
-        <Clock className="text-[#F7931A]" size={18} />
-        <span className="text-[#F7931A] text-xs font-mono uppercase tracking-[0.3em] font-bold">Exam Countdown</span>
-        <div className="flex-grow h-px bg-[#F7931A]/20" />
-        <div className="flex items-center gap-2 text-white/40 text-[10px] font-mono uppercase">
-          <Calendar size={12} />
-          {new Date(examDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
+    <div className="mb-12 p-8 md:p-10 bg-[#121212] border-2 border-[#F7931A]/20 rounded-[2rem] relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#F7931A]/40 to-transparent" />
+      
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+        <div className="flex items-center gap-5">
+          <div className="w-12 h-12 rounded-full bg-[#F7931A]/10 border border-[#F7931A]/30 flex items-center justify-center shrink-0">
+            <Clock className="text-[#F7931A]" size={24} />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[#F7931A] text-lg font-black uppercase tracking-[0.2em] leading-tight">EXAM</span>
+            <span className="text-[#F7931A] text-lg font-black uppercase tracking-[0.2em] leading-tight opacity-90">COUNTDOWN</span>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-3 px-5 py-2.5 bg-white/5 border border-white/10 rounded-full self-start md:self-auto">
+          <Calendar className="text-[#F7931A]/60" size={16} />
+          <span className="text-white/60 text-[11px] font-mono font-bold uppercase tracking-widest">
+            {new Date(examDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
+          </span>
         </div>
       </div>
-      <div className="grid grid-cols-4 gap-4">
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
         {blocks.map(b => (
-          <div key={b.label} className="text-center">
-            <div className="bg-[#1A1A2E] border-2 border-[#F7931A]/40 py-5 px-2 relative overflow-hidden rounded-lg">
-              <div className="absolute inset-0 bg-gradient-to-b from-[#F7931A]/10 to-transparent pointer-events-none" />
-              <span className="text-4xl md:text-5xl font-black text-white font-mono tabular-nums leading-none">
+          <div key={b.label} className="flex flex-col items-center">
+            <div className="w-full bg-[#1A1A1A] border-2 border-[#F7931A]/10 py-8 md:py-12 px-2 relative overflow-hidden rounded-[1.5rem] shadow-2xl transition-all hover:border-[#F7931A]/40 group">
+              <div className="absolute inset-0 bg-gradient-to-b from-[#F7931A]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <motion.span 
+                key={b.value}
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                className="text-5xl md:text-7xl font-black text-[#F7931A] font-mono tabular-nums leading-none block text-center drop-shadow-[0_0_20px_rgba(247,147,26,0.4)]"
+                style={{ color: '#F7931A' }}
+              >
                 {String(b.value).padStart(2, '0')}
-              </span>
+              </motion.span>
             </div>
-            <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-[#F7931A]/70 mt-2 font-bold">{b.label}</p>
+            <p className="text-[10px] md:text-xs font-mono font-black uppercase tracking-[0.4em] text-[#F7931A]/60 mt-5">{b.label}</p>
           </div>
         ))}
       </div>

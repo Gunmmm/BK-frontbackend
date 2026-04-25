@@ -214,24 +214,23 @@ export default function ChatWidget() {
       </AnimatePresence>
 
       <motion.button
-        whileHover={{ scale: 1.1, rotate: 10 }}
-        whileTap={{ scale: 0.9, rotate: -10 }}
+        whileHover={{ scale: 1.05, x: -2, y: -2 }}
+        whileTap={{ scale: 0.95, x: 0, y: 0 }}
         animate={!isOpen ? {
-          y: [0, -12, 0, -6, 0],
-          scale: [1, 1.1, 1, 1.05, 1],
-          rotate: [0, -15, 15, -10, 10, 0]
-        } : { y: 0, scale: 1, rotate: 0 }}
+          y: [0, -8, 0],
+          scale: [1, 1.02, 1],
+        } : { y: 0, scale: 1 }}
         transition={!isOpen ? {
-          duration: 2.5,
+          duration: 3,
           repeat: Infinity,
           repeatType: "loop",
           ease: "easeInOut",
-          repeatDelay: 1.5
+          repeatDelay: 2
         } : { duration: 0.3 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-14 h-14 bg-brand flex items-center justify-center text-ink shadow-[0_10px_40px_rgba(255,193,7,0.6)] border-2 border-ink transform-gpu"
+        className="w-14 h-14 bg-brand flex items-center justify-center text-ink shadow-[4px_4px_0_0_#1A1A1A] border-[3px] border-ink transform-gpu transition-shadow hover:shadow-[6px_6px_0_0_#1A1A1A]"
       >
-        {isOpen ? <X size={26} /> : <MessageSquare size={24} strokeWidth={2.5} />}
+        {isOpen ? <X size={28} strokeWidth={3} /> : <MessageSquare size={26} strokeWidth={3} />}
       </motion.button>
     </div>
   );
