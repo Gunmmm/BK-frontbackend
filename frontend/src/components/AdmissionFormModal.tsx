@@ -156,7 +156,7 @@ export default function AdmissionFormModal({ isOpen, onClose }: AdmissionFormMod
   };
 
   const handleMobileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.slice(0, 15);
+    const value = e.target.value.replace(/\D/g, '').slice(0, 10);
     setFormData(prev => ({ ...prev, [e.target.name]: value }));
   };
 

@@ -88,7 +88,7 @@ const CountdownTimer: React.FC<{ examDate: string }> = ({ examDate }) => {
                 {String(b.value).padStart(2, '0')}
               </motion.span>
             </div>
-            <p className="text-[10px] md:text-xs font-mono font-black uppercase tracking-[0.4em] text-[#F7931A]/60 mt-5">{b.label}</p>
+            <p className="text-[10px] md:text-xs font-mono font-black uppercase tracking-[0.4em] text-[#F7931A]/90 mt-5">{b.label}</p>
           </div>
         ))}
       </div>
@@ -149,93 +149,124 @@ export const DynamicExamDetailsPage: React.FC<DynamicExamDetailsPageProps> = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen bg-[#0A0A0A] pt-20 pb-32"
+      className="min-h-screen bg-background relative selection:bg-brand selection:text-ink"
     >
-      <div className="max-w-5xl mx-auto px-8 relative">
-        <button 
-          onClick={onBack}
-          className="inline-flex items-center btn-outline px-6 py-3 mb-8 bg-void/50 backdrop-blur-md border border-white/10 hover:border-[#F7931A] transition-colors rounded-sm"
-        >
-          <ChevronRight className="rotate-180 mr-2" size={16} />
-          <span className="text-xs font-mono uppercase tracking-widest text-[#F7931A]">Back to Courses</span>
-        </button>
+      {/* Premium Navbar */}
+      <nav className="fixed top-0 left-0 right-0 z-[100] px-8 h-20 flex items-center justify-between bg-white border-b-4 border-ink shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+        <div className="flex items-center gap-4 cursor-pointer" onClick={onBack}>
+          <BrandLogo className="w-10 h-10" />
+          <div className="flex flex-col">
+            <span className="text-xl font-display font-black uppercase text-ink leading-none">{examName} Hub</span>
+            <span className="text-[10px] font-mono text-brand font-bold uppercase tracking-widest mt-1">Strategic Portal</span>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-4">
+          <button onClick={onRegister} className="btn-brutalist bg-brand px-6 py-2 text-xs">Inquiry</button>
+          <button onClick={onRegister} className="hidden sm:flex btn-brutalist bg-ink text-brand px-6 py-2 text-xs">Apply Now</button>
+        </div>
+      </nav>
 
-        <article className="prose prose-invert max-w-none mt-10">
-          <header className="mb-20 text-center border-b border-white/10 pb-12">
-            <div className="text-[#F7931A] text-xs font-mono uppercase tracking-[0.4em] mb-6">Strategic orientation</div>
-            <h1 className="text-4xl md:text-6xl font-heading font-bold text-white leading-[1.1] tracking-tighter uppercase mb-6">
-              <span className="bg-gradient-to-r from-[#F7931A] to-[#FFD600] bg-clip-text text-transparent italic">{examName}</span>
-            </h1>
-            <p className="text-[#94A3B8] font-body text-xl max-w-3xl mx-auto leading-relaxed">
-              Complete blueprint and strategy details for {examName}.
-            </p>
-          </header>
+      {/* Hero Section */}
+      <header className="pt-40 pb-20 px-8 bg-ink relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10 pointer-events-none"
+          style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, #E89C10 1px, transparent 0)`,
+            backgroundSize: '32px 32px'
+          }}
+        />
+        <div className="max-w-7xl mx-auto relative z-10">
+          <button 
+            onClick={onBack}
+            className="group flex items-center gap-2 text-brand mb-10 hover:translate-x-1 transition-transform"
+          >
+            <ChevronRight className="rotate-180" size={18} />
+            <span className="text-xs font-mono uppercase tracking-[0.3em] font-black">Return to Navigation</span>
+          </button>
+          <h1 className="text-5xl md:text-8xl font-display font-black text-white uppercase tracking-tighter leading-none mb-8">
+            {examName} <span className="text-brand">Explosion</span>
+          </h1>
+          <p className="text-white/60 text-lg md:text-2xl font-body max-w-3xl leading-relaxed">
+            Detailed strategic roadmap for {examName} recruitment — Your blueprint to administrative success.
+          </p>
+        </div>
+      </header>
 
-          <div className="grid grid-cols-1 gap-16">
+      <main className="max-w-7xl mx-auto px-8 py-24 pb-40">
+        <div className="grid grid-cols-1 gap-24">
             {loading ? (
               <div className="py-20 text-center text-[#F7931A] animate-pulse uppercase font-mono tracking-widest">
                 Fetching Strategic Insights...
               </div>
-            ) : content ? (
-              <section className="relative group">
+          ) : content ? (
+            <>
+              {/* ── COUNTDOWN TIMER ── */}
+              {content.examDate && (
+                <div className="scroll-mt-32">
+                   <CountdownTimer examDate={content.examDate} />
+                </div>
+              )}
 
-                {/* ── COUNTDOWN TIMER ── */}
-                {content.examDate && (
-                  <CountdownTimer examDate={content.examDate} />
-                )}
+              {/* ── FEATURED IMAGE ── */}
+              {content.image && (
+                <div className="w-full h-[400px] md:h-[600px] overflow-hidden border-8 border-ink shadow-[20px_20px_0_0_#F7931A] rounded-none">
+                   <img src={content.image} alt={content.title} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500" />
+                </div>
+              )}
 
-                {content.image && (
-                  <div className="mb-12 w-full h-[300px] md:h-[400px] overflow-hidden border-4 border-[#F7931A]/20 rounded-xl">
-                     <img src={content.image} alt={content.title} className="w-full h-full object-cover" />
+              {/* ── DYNAMIC CONTENT MODULES ── */}
+              <div className="grid grid-cols-1 gap-20">
+                {content.dynamicSections && content.dynamicSections.length > 0 ? (
+                  content.dynamicSections.map((sec: any, sIdx: number) => (
+                    <section key={sIdx} className="bg-white border-8 border-ink p-10 md:p-16 shadow-[-20px_20px_0_0_#F7931A] relative overflow-hidden">
+                      <div className="absolute top-0 right-0 p-12 opacity-[0.03] pointer-events-none">
+                        <GraduationCap size={400} />
+                      </div>
+                      <h3 className="text-3xl md:text-5xl font-display font-black text-ink uppercase tracking-tight mb-10 flex items-center gap-6">
+                         <div className="w-4 h-12 bg-brand" /> {sec.title}
+                      </h3>
+                      <div className="text-ink/80 text-xl md:text-2xl leading-relaxed font-body whitespace-pre-wrap max-w-4xl">
+                        {sec.content}
+                      </div>
+                    </section>
+                  ))
+                ) : (
+                  <div className="text-center py-24 border-8 border-dashed border-ink/10 opacity-50">
+                    <p className="text-ink text-2xl font-display font-black uppercase">"Strategic modules are being finalized."</p>
                   </div>
                 )}
-
-                <div className="grid grid-cols-1 gap-8">
-                  {content.dynamicSections && content.dynamicSections.length > 0 ? (
-                    content.dynamicSections.map((sec: any, sIdx: number) => (
-                      <div key={sIdx} className="p-10 bg-[#0F1115] border border-white/5 rounded-2xl relative overflow-hidden transition-all hover:border-[#F7931A]/30">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-[#F7931A]/5 rounded-full blur-[60px]" />
-                        <h3 className="text-2xl font-heading font-bold text-[#F7931A] uppercase tracking-wider mb-6 flex items-center gap-4">
-                           {sec.title}
-                        </h3>
-                        <div className="text-slate-200 text-lg leading-relaxed font-body whitespace-pre-wrap">
-                          {sec.content}
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-20 border border-white/5 rounded-3xl">
-                      <p className="text-[#94A3B8] text-xl font-body italic">"Strategic modules for this exam are being finalized."</p>
-                    </div>
-                  )}
-                </div>
-              </section>
-            ) : (
-              <div className="text-center py-40 border border-white/5 rounded-3xl">
-                <p className="text-[#94A3B8] text-xl font-body italic mb-6">"Content for this specific exam has not been published yet."</p>
-                <button 
-                  onClick={onRegister}
-                  className="bg-transparent border border-[#F7931A] text-[#F7931A] py-3 px-8 text-sm uppercase tracking-widest hover:bg-[#F7931A] hover:text-black transition-all"
-                >
-                  Inquire About This Course
-                </button>
               </div>
-            )}
+            </>
+          ) : (
+            <div className="text-center py-40 border-8 border-ink bg-white shadow-[20px_20px_0_0_#F7931A]">
+              <p className="text-ink text-3xl font-display font-black uppercase mb-10 italic">"Content not published yet."</p>
+              <button 
+                onClick={onRegister}
+                className="btn-brutalist bg-brand px-12 py-5 text-xl"
+              >
+                Inquire About {examName}
+              </button>
+            </div>
+          )}
+        </div>
+      </main>
 
-            {content && (
-              <footer className="text-center py-20 border-t border-white/10 mt-20">
-                <h2 className="text-3xl font-heading font-bold text-white mb-6 uppercase">Ready to Forge Your Legacy?</h2>
-                <button 
-                   onClick={onRegister}
-                   className="bg-[#F7931A] text-black font-bold py-5 px-16 text-xl uppercase tracking-[0.2em] hover:bg-white transition-all shadow-[8px_8px_0_0_#1A1A1A] hover:shadow-none hover:translate-x-2 hover:translate-y-2"
-                >
-                  Start Your Journey →
-                </button>
-              </footer>
-            )}
-          </div>
-        </article>
-      </div>
+      {/* Global Footer Call to Action */}
+      <section className="bg-ink py-32 px-8 text-center border-t-[16px] border-brand">
+         <div className="max-w-5xl mx-auto">
+            <h2 className="text-5xl md:text-8xl font-display font-black text-white uppercase mb-12 leading-none tracking-tighter">
+              Start Your <span className="text-brand">{examName}</span> Preparation Today
+            </h2>
+            <div className="flex flex-col sm:flex-row justify-center gap-10">
+               <button onClick={onRegister} className="btn-brutalist bg-brand px-16 py-6 text-2xl group">
+                  <span className="group-hover:translate-x-3 transition-transform inline-block">Join Batch 2026 →</span>
+               </button>
+               <button onClick={onRegister} className="btn-brutalist bg-white text-ink px-16 py-6 text-2xl">
+                  Download Guide
+               </button>
+            </div>
+         </div>
+      </section>
     </motion.div>
   );
 };
