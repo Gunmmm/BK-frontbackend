@@ -164,13 +164,6 @@ h1, h2, h3, h4, h5, h6 {
   border-bottom: 1px solid #E5E7EB;
 }
 
-.bg-void .text-white,
-.bg-void .text-white\/70,
-.bg-void .text-white\/80,
-.bg-void .text-white\/90 {
-  color: #1A1A1A !important;
-}
-
 .bg-void .btn-outline {
   @apply border-ink text-ink hover:bg-ink hover:text-brand;
 }

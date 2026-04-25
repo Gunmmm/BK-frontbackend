@@ -149,7 +149,7 @@ export const DynamicExamDetailsPage: React.FC<DynamicExamDetailsPageProps> = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen bg-void pt-20 pb-32"
+      className="min-h-screen bg-[#0A0A0A] pt-20 pb-32"
     >
       <div className="max-w-5xl mx-auto px-8 relative">
         <button 
@@ -198,7 +198,7 @@ export const DynamicExamDetailsPage: React.FC<DynamicExamDetailsPageProps> = ({
                         <h3 className="text-2xl font-heading font-bold text-[#F7931A] uppercase tracking-wider mb-6 flex items-center gap-4">
                            {sec.title}
                         </h3>
-                        <div className="text-white/80 text-lg leading-relaxed font-body whitespace-pre-wrap">
+                        <div className="text-slate-200 text-lg leading-relaxed font-body whitespace-pre-wrap">
                           {sec.content}
                         </div>
                       </div>
