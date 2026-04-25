@@ -5,15 +5,6 @@ const { authenticate } = require('../middleware/auth');
 const upload = require('../middleware/upload');
 const asyncHandler = require('../utils/asyncHandler');
 
-// @desc    Get dynamic content
-router.get('/:section', asyncHandler(async (req, res) => {
-  const items = await WebContent.find({ 
-    section: req.params.section, 
-    status: 'published' 
-  }).sort({ createdAt: -1 });
-  res.json({ success: true, items });
-}));
-
 // Helper for saving content
 const saveContent = async (req, res, section) => {
   try {
@@ -79,6 +70,22 @@ router.delete('/:id', authenticate, asyncHandler(async (req, res) => {
     return res.status(404).json({ success: false, message: 'Content item not found' });
   }
   res.json({ success: true, message: 'Content deleted successfully' });
+}));
+
+// @desc    Get dynamic content (KEEP AT BOTTOM)
+router.get('/:section', asyncHandler(async (req, res) => {
+  console.log(`[CONTENT] Fetching section: ${req.params.section}`);
+  try {
+    const items = await WebContent.find({ 
+      section: req.params.section, 
+      status: 'published' 
+    }).sort({ createdAt: -1 });
+    console.log(`[CONTENT] Found ${items.length} items for ${req.params.section}`);
+    res.json({ success: true, items });
+  } catch (err) {
+    console.error(`[CONTENT ERROR] Failed to fetch ${req.params.section}:`, err);
+    throw err;
+  }
 }));
 
 module.exports = router;
