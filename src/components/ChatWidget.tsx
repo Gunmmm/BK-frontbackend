@@ -152,10 +152,15 @@ export default function ChatWidget() {
                     <div className="relative">
                       <Phone size={12} className="absolute left-3 top-3 text-muted" />
                       <input 
-                        placeholder="Phone Number"
+                        placeholder="Phone Number (10 Digits)"
+                        type="tel"
+                        maxLength={10}
                         className="w-full pl-8 pr-3 py-2 border border-ink/20 text-xs focus:border-brand outline-none"
                         value={ticketForm.phone}
-                        onChange={e => setTicketForm({...ticketForm, phone: e.target.value})}
+                        onChange={e => {
+                          const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                          setTicketForm({...ticketForm, phone: val});
+                        }}
                       />
                     </div>
                     <div className="relative">
@@ -171,7 +176,7 @@ export default function ChatWidget() {
                   <div className="flex gap-2">
                     <button 
                       onClick={handleRaiseTicket}
-                      disabled={!ticketForm.name || !ticketForm.phone || !ticketForm.issue}
+                      disabled={!ticketForm.name || ticketForm.phone.length !== 10 || !ticketForm.issue}
                       className="flex-grow bg-brand text-ink py-2 text-[11px] font-bold uppercase disabled:opacity-50"
                     >
                       Submit Ticket

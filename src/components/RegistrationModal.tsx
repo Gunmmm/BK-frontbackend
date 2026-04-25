@@ -55,7 +55,10 @@ export default function RegistrationModal({
   const allSubExams = getSubExams();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
+    let { name, value } = e.target;
+    if (name === 'phone') {
+      value = value.replace(/\D/g, '').slice(0, 10);
+    }
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
