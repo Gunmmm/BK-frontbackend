@@ -1,4 +1,5 @@
 const express = require('express');
+console.log('>>> APP.JS LOADING...');
 const cors = require('cors');
 const path = require('path');
 const errorHandler = require('./middleware/errorHandler');
@@ -97,12 +98,11 @@ const contentRoutes = require('./routes/content');
 const bookRoutes = require('./routes/book');
 
 // Mount Routes
+app.use('/api', systemRoutes); 
 app.use('/api/registration', registrationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/content', contentRoutes);
 app.use('/api/books', bookRoutes);
-app.use('/api', systemRoutes); 
-
 
 // Serve static uploads
 app.use('/uploads', express.static(path.join(__dirname, '../frontend/public/uploads')));

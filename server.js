@@ -1,4 +1,5 @@
 require('dotenv').config();
+console.log('>>> SERVER.JS STARTING...');
 const app = require('./app');
 const connectDB = require('./config/db');
 
