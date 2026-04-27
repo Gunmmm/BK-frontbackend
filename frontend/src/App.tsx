@@ -98,28 +98,58 @@ export default function App() {
 
   const [showMandatoryLogin, setShowMandatoryLogin] = useState(false);
   const [dynamicCourses, setDynamicCourses] = useState<any[]>([]);
+  const [dynamicExams, setDynamicExams] = useState<any[]>([]);
   const [quickAccessList, setQuickAccessList] = useState<any[]>([]);
 
   const fetchAllContent = async () => {
     try {
-      const [coursesResp, upscResp, quickResp] = await Promise.all([
-        fetch('/api/content/courses'),
-        fetch('/api/content/upsc_hub'),
-        fetch('/api/content/quick_exam_access')
-      ]);
-      const [coursesData, upscData, quickData] = await Promise.all([
-        coursesResp.json(),
-        upscResp.json(),
-        quickResp.json()
-      ]);
+      const endpoints = [
+        '/api/content/courses',
+        '/api/content/upsc_hub',
+        '/api/content/quick_exam_access',
+        '/api/content/exams'
+      ];
       
-      const combined = [...(coursesData.items || []), ...(upscData.items || [])].map(item => ({
+      const responses = await Promise.all(endpoints.map(url => fetch(url)));
+      const dataResults = await Promise.all(responses.map(async (res, idx) => {
+        if (!res.ok) {
+          console.error(`Fetch failed for ${endpoints[idx]}: ${res.status}`);
+          return { items: [] };
+        }
+        try {
+          return await res.json();
+        } catch (e) {
+          console.error(`JSON parse failed for ${endpoints[idx]}`);
+          return { items: [] };
+        }
+      }));
+
+      const [coursesData, upscData, quickData, examsData] = dataResults;
+      
+      // Process Courses (strictly from courses and upsc_hub sections)
+      const courses = [
+        ...(coursesData.items || []), 
+        ...(upscData.items || [])
+      ].filter(item => item.section !== 'exams') // Explicit filter
+      .map(item => ({
         ...item,
-        id: item._id, // Ensure id exists for components expecting it
-        image: item.image || '/home/card1.png', // Fallback image
+        id: item._id, 
+        image: item.image || '/home/card1.png',
         isNew: true
       }));
-      setDynamicCourses(combined);
+
+      // Process Exams (strictly from exams section)
+      const exams = (examsData.items || [])
+        .filter(item => item.section === 'exams') // Explicit filter
+        .map(item => ({
+        ...item,
+        id: item._id,
+        image: item.image || '/home/card1.png',
+        isNew: true
+      }));
+      
+      setDynamicCourses(courses);
+      setDynamicExams(exams);
       setQuickAccessList(quickData.items || []);
     } catch (err) {
       console.error("Failed to fetch dynamic content:", err);
@@ -226,6 +256,7 @@ export default function App() {
                       setIsAdmissionModalOpen={setIsAdmissionModalOpen}
                       setIsAddStoryModalOpen={setIsAddStoryModalOpen}
                       dynamicCourses={dynamicCourses}
+                      dynamicExams={dynamicExams}
                       stories={stories.slice(0, 2)}
                       setSelectedExamName={setSelectedExamName}
                       quickAccessList={quickAccessList}
@@ -236,6 +267,7 @@ export default function App() {
                       selectedCategory={selectedCategory}
                       activeNavCategory={EXAM_CATEGORIES[0].id}
                       dynamicCourses={dynamicCourses}
+                      dynamicExams={dynamicExams}
                       onViewSyllabus={(id) => {
                         setSelectedSyllabusId(id);
                         if (id === 1) {

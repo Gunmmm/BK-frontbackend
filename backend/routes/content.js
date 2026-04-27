@@ -5,7 +5,6 @@ const { authenticate } = require('../middleware/auth');
 const upload = require('../middleware/upload');
 const asyncHandler = require('../utils/asyncHandler');
 
-// Helper for saving content
 const saveContent = async (req, res, section) => {
   try {
     let { title, category, subCategory, instructor, image, isFeatured, dynamicSections, examDate } = req.body;
@@ -19,27 +18,21 @@ const saveContent = async (req, res, section) => {
       catch (e) { dynamicSections = []; }
     }
     
-    const query = { section, category, subCategory };
-    const update = { $set: {} };
-    
-    if (title) update.$set.title = title;
-    if (instructor) update.$set.instructor = instructor;
-    if (image) update.$set.image = image;
-    if (isFeatured !== undefined) update.$set.isFeatured = isFeatured === 'true' || isFeatured === true;
-    
-    // Only update dynamicSections if content is provided
-    if (dynamicSections && dynamicSections.length > 0 && dynamicSections[0].content) {
-      update.$set.dynamicSections = dynamicSections;
-    }
-    
-    if (examDate) update.$set.examDate = new Date(examDate);
-    update.$set.status = 'published';
+    const contentData = {
+      section,
+      category,
+      subCategory,
+      title,
+      instructor,
+      image,
+      isFeatured: isFeatured === 'true' || isFeatured === true,
+      dynamicSections: (dynamicSections && dynamicSections.length > 0) ? dynamicSections : [],
+      examDate: examDate ? new Date(examDate) : undefined,
+      status: 'published'
+    };
 
-    const newItem = await WebContent.findOneAndUpdate(query, update, { 
-      new: true, 
-      upsert: true,
-      setDefaultsOnInsert: true 
-    });
+    const newItem = new WebContent(contentData);
+    await newItem.save();
 
     res.status(201).json({ success: true, item: newItem });
   } catch (err) {

@@ -14,6 +14,7 @@ interface HomeProps {
   setIsAdmissionModalOpen: (open: boolean) => void;
   setIsAddStoryModalOpen: (open: boolean) => void;
   dynamicCourses: any[];
+  dynamicExams: any[];
   stories: Story[];
   setSelectedExamName: (name: string) => void;
   quickAccessList: any[];
@@ -26,6 +27,7 @@ export const Home: React.FC<HomeProps> = ({
   setIsAdmissionModalOpen,
   setIsAddStoryModalOpen,
   dynamicCourses,
+  dynamicExams,
   stories,
   setSelectedExamName,
   quickAccessList
@@ -100,7 +102,6 @@ export const Home: React.FC<HomeProps> = ({
         </section>
       )}
 
-
       {/* Quick Exam Portal: 3 Tabs Section */}
       <section className="py-12 px-4 bg-white relative">
         <div className="max-w-6xl mx-auto">
@@ -114,8 +115,7 @@ export const Home: React.FC<HomeProps> = ({
              <div className="flex flex-wrap justify-center gap-2 bg-ink/5 p-1.5 border-4 border-ink shadow-[4px_4px_0_0_#1A1A1A]">
                 {(quickAccessList && quickAccessList.length > 0 ? quickAccessList : [
                   { category: 'psi', title: 'PSI / STI / ASO' },
-                  { category: 'tet', title: 'TET / CTET' },
-                  { category: 'police', title: 'POLICE BHARTI' }
+                  { category: 'tet', title: 'TET / CTET' }
                 ]).map(tab => (
                   <button
                     key={tab.category}
@@ -287,51 +287,6 @@ export const Home: React.FC<HomeProps> = ({
                             <div className="p-3 bg-brand/5 border border-brand/10 text-center"><p className="text-[9px] text-muted">TIME</p><p className="text-sm font-black">150 MIN</p></div>
                             <div className="p-3 bg-brand/5 border border-brand/10 text-center"><p className="text-[9px] text-muted">NEG. MARKS</p><p className="text-sm font-black text-red-600">NONE</p></div>
                             <div className="p-3 bg-brand/5 border border-brand/10 text-center"><p className="text-[9px] text-muted">PASSING</p><p className="text-sm font-black text-green-600">60% GEN</p></div>
-                         </div>
-                     </div>
-                     <div className="bg-ink/5 p-4 text-center border-t border-ink/10 group-hover/card:bg-brand transition-colors">
-                        <span className="text-[10px] font-display font-bold uppercase tracking-widest text-ink/60 group-hover/card:text-ink">Click for Detailed Syllabus & Exam Dates →</span>
-                     </div>
-                   </div>
-                 )}
-
-                 {selectedTab === 'police' && (
-                   <div 
-                     onClick={() => setView('courseDetailPolice')}
-                     className="bg-white border-4 border-ink shadow-[12px_12px_0_0_#1A1A1A] overflow-hidden cursor-pointer group/card transition-transform hover:-translate-y-1"
-                   >
-                     <div className="bg-[#1a1a1a] text-white p-4 flex justify-between items-center group-hover/card:bg-brand group-hover/card:text-ink transition-colors">
-                        <h3 className="text-lg md:text-2xl font-display font-black leading-none uppercase italic">
-                          POLICE <span className="text-brand group-hover/card:text-ink">BHARTI 2026</span>
-                        </h3>
-                        <div className="flex items-center gap-2">
-                           <span className="text-[10px] font-mono text-brand font-bold uppercase tracking-widest bg-white/10 px-3 py-1 border border-brand/30 group-hover/card:border-ink/30 group-hover/card:text-ink">HSC LEVEL RECRUITMENT</span>
-                           <ExternalLink size={14} className="opacity-0 group-hover/card:opacity-100 transition-opacity" />
-                        </div>
-                     </div>
-                     <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-                         <div className="space-y-4">
-                            <div className="bg-brand text-ink px-4 py-1 text-[10px] font-black uppercase inline-block border-2 border-ink">ELIGIBILITY (पात्रता)</div>
-                            <div className="space-y-2">
-                                <div className="flex justify-between text-xs font-bold border-b border-ink/5 pb-2"><span>12th Pass (HSC)</span> <CheckCircle2 size={12} className="text-brand"/></div>
-                                <div className="flex justify-between text-xs font-bold border-b border-ink/5 pb-2"><span>Age: 18 - 28 Years</span> <Clock size={12} className="text-brand"/></div>
-                                <div className="flex justify-between text-xs font-bold border-b border-ink/5 pb-2"><span>Height: 165cm (M), 155cm (F)</span> <Ruler size={12} className="text-brand"/></div>
-                                <div className="flex justify-between text-xs font-bold"><span>Chest: 79cm (+5cm Expand)</span> <Target size={12} className="text-brand"/></div>
-                            </div>
-                         </div>
-                         <div className="space-y-4">
-                            <div className="bg-ink text-white px-4 py-1 text-[10px] font-black uppercase inline-block border-2 border-brand">EXAM PATTERN (स्वरूप)</div>
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-3 p-3 bg-ink/5 border border-ink/10">
-                                   <span className="text-sm font-black text-brand">50M</span>
-                                   <div className="text-[10px] font-bold text-ink/70">PHYSICAL GROUND TEST (पॅरोडे टेस्ट)</div>
-                                </div>
-                                <div className="flex items-center gap-3 p-3 bg-ink/5 border border-ink/10">
-                                   <span className="text-sm font-black text-brand">100M</span>
-                                   <div className="text-[10px] font-bold text-ink/70">WRITTEN EXAMINATION (लेखी परीक्षा)</div>
-                                </div>
-                                <p className="text-[10px] text-muted font-bold italic">उमेदवारांना लेखी परीक्षेसाठी पात्र होण्यासाठी शारीरिक चाचणीत किमान ५०% गुण मिळवणे आवश्यक आहे.</p>
-                            </div>
                          </div>
                      </div>
                      <div className="bg-ink/5 p-4 text-center border-t border-ink/10 group-hover/card:bg-brand transition-colors">
