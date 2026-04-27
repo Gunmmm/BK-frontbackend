@@ -424,7 +424,7 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
       if (data.success) {
         resetExamForm();
         fetchExams();
-        alert("DATA UPLOADED SUCCESSFULLY!");
+        alert("DATA ADDED TO PORTAL! New layer created. Previous data is preserved.");
       } else {
         alert("Failed to add exam: " + data.message);
       }
@@ -470,7 +470,7 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
         resetCourseForm();
         if (activeTab === 'exams') fetchExams();
         else fetchCourses();
-        alert("DATA UPLOADED SUCCESSFULLY!");
+        alert("DATA ADDED TO PORTAL! New layer created. Previous data is preserved.");
       } else {
         alert("Failed to add course: " + data.message);
       }
@@ -1480,7 +1480,7 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
                       <div className="space-y-6">
                         <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase tracking-widest text-ink/40">Portal Identity</label>
-                          <input required type="text" value={courseForm.title} onChange={e => setCourseForm({...courseForm, title: e.target.value})} placeholder="e.g. UPSC Hub 2026" className="w-full border-4 border-ink p-4 font-mono uppercase bg-white focus:ring-8 focus:ring-brand/10 transition-all text-sm" />
+                          <input required type="text" value={courseForm.title} onChange={e => setCourseForm({...courseForm, title: e.target.value})} placeholder="e.g. UPSC Hub 2026" className="w-full border-4 border-ink p-4 font-mono bg-white focus:ring-8 focus:ring-brand/10 transition-all text-sm" />
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                           <div className="space-y-2">
@@ -1513,7 +1513,7 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
                         </div>
                         <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase tracking-widest text-ink/40">Assigned Team/Mentor</label>
-                          <input required type="text" value={courseForm.instructor} onChange={e => setCourseForm({...courseForm, instructor: e.target.value})} placeholder="e.g. Dr. Ghuge" className="w-full border-4 border-ink p-4 font-mono uppercase bg-white text-sm" />
+                          <input required type="text" value={courseForm.instructor} onChange={e => setCourseForm({...courseForm, instructor: e.target.value})} placeholder="e.g. Dr. Ghuge" className="w-full border-4 border-ink p-4 font-mono bg-white text-sm" />
                         </div>
                         <div className="border-4 border-ink p-6 bg-ink/5 flex items-center justify-between">
                           <div>
@@ -1576,8 +1576,8 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
                               <Trash2 size={14} />
                             </button>
                             <div className="space-y-4">
-                              <input type="text" value={sec.title} onChange={e => updateSection(idx, 'title', e.target.value)} placeholder="Module Title (e.g. Stage 1: Strategy)" className="w-full border-b-4 border-ink p-2 font-black uppercase text-xs focus:border-brand transition-colors bg-transparent outline-none" />
-                              <textarea value={sec.content} onChange={e => updateSection(idx, 'content', e.target.value)} placeholder="Strategic details for this module..." className="w-full h-24 bg-ink/[0.03] p-4 text-[10px] font-mono uppercase focus:bg-white transition-all resize-none border-none outline-none" />
+                              <input type="text" value={sec.title} onChange={e => updateSection(idx, 'title', e.target.value)} placeholder="Module Title (e.g. Stage 1: Strategy)" className="w-full border-b-4 border-ink p-2 font-black text-xs focus:border-brand transition-colors bg-transparent outline-none" />
+                              <textarea value={sec.content} onChange={e => updateSection(idx, 'content', e.target.value)} placeholder="Strategic details for this module..." className="w-full h-24 bg-ink/[0.03] p-4 text-[10px] font-body focus:bg-white transition-all resize-none border-none outline-none" />
                             </div>
                           </div>
                         ))}
@@ -1710,6 +1710,7 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
                               'Engineering & PSU Exams',
                               'Law & Judiciary Exams',
                               'Medical & Nursing Exams',
+                              'Police & Security Services',
                               'Other Important Govt Exams'
                             ].map(cat => (
                               <option key={cat} value={cat}>{cat}</option>
@@ -1788,18 +1789,19 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
                   </div>
                   {(() => {
                     const ALL_CATEGORIES = [
-                      'UPSC HUB (IAS, IPS, IFS)', 
-                      'MPSC (MAHARASHTRA SERVICES)', 
-                      'SSC (STAFF SELECTION COMMISSION)', 
-                      'BANKING & FINANCE EXAMS', 
-                      'RAILWAY EXAMS (RRB)', 
-                      'DEFENCE EXAMS', 
-                      'TEACHING & EDUCATION EXAMS', 
-                      'INSURANCE EXAMS', 
-                      'ENGINEERING & PSU EXAMS', 
-                      'LAW & JUDICIARY EXAMS', 
-                      'MEDICAL & NURSING EXAMS', 
-                      'OTHER IMPORTANT GOVT EXAMS'
+                      'UPSC Hub (IAS, IPS, IFS)', 
+                      'MPSC (Maharashtra Services)', 
+                      'SSC (Staff Selection Commission)', 
+                      'Banking & Finance Exams', 
+                      'Railway Exams (RRB)', 
+                      'Defence Exams', 
+                      'Teaching & Education Exams', 
+                      'Insurance Exams', 
+                      'Engineering & PSU Exams', 
+                      'Law & Judiciary Exams', 
+                      'Medical & Nursing Exams', 
+                      'Police & Security Services',
+                      'Other Important Govt Exams'
                     ];
                     return ALL_CATEGORIES.map(cat => {
                       const catExams = examsList.filter(e => e.category === cat);
@@ -1822,10 +1824,17 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
                                     <img src={exam.image || '/home/card1.png'} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
                                   </div>
                                   <div className="flex-grow min-w-0">
-                                    <h5 className="font-black text-[10px] uppercase leading-tight group-hover:text-white transition-colors truncate">{exam.title}</h5>
-                                    <p className="text-[8px] font-mono text-ink/30 group-hover:text-brand transition-colors mt-1">DATA DEPLOYED ✓</p>
+                                    <h5 className="font-black text-[10px] leading-tight group-hover:text-white transition-colors">{exam.title}</h5>
+                                    <div className="flex items-center gap-2 mt-1">
+                                      <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                                      <p className="text-[8px] font-mono text-ink/30 group-hover:text-brand transition-colors uppercase">Layer added: {new Date(exam.createdAt).toLocaleDateString()} {new Date(exam.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                    </div>
                                   </div>
-                                  <button onClick={() => handleDeleteCourse(exam._id)} className="text-ink/10 group-hover:text-red-500 transition-colors shrink-0">
+                                  <button 
+                                    onClick={() => handleDeleteCourse(exam._id)} 
+                                    className="bg-red-50 text-red-600 p-2 border border-red-200 hover:bg-red-600 hover:text-white transition-all shadow-[2px_2px_0_0_rgba(220,38,38,0.2)]"
+                                    title="Remove this specific data layer"
+                                  >
                                     <Trash2 size={16} />
                                   </button>
                                 </div>

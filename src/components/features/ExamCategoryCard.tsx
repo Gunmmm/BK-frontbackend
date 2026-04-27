@@ -77,23 +77,23 @@ export function ExamCategoryCard({
       )}
       <motion.div 
         layout="position"
-        animate={{ height: isOpen ? 220 : 180 }} 
+        animate={{ height: isOpen ? 200 : 160 }} 
         className="relative w-full shrink-0 bg-ink overflow-hidden"
       >
         <img 
           src={category.thumb} 
           alt={`${category.title} Coaching`}
-          className="absolute inset-0 w-full h-full object-cover grayscale brightness-50 group-hover:grayscale-0 group-hover:brightness-100 group-hover:scale-110 transition-all duration-1000"
+          className="absolute inset-0 w-full h-full object-cover object-[center_30%] brightness-75 group-hover:brightness-100 group-hover:scale-110 transition-all duration-1000"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-transparent opacity-80" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_rgba(0,0,0,0.4)_100%)]" />
         
-        <div className="absolute inset-x-0 bottom-0 p-6 flex flex-col justify-end pointer-events-none">
+        <div className="absolute inset-x-0 bottom-0 p-5 flex flex-col justify-end pointer-events-none">
           <div className="flex items-center gap-3 mb-2">
-            <span className="text-3xl filter drop-shadow-[0_0_10px_rgba(255,193,7,0.5)] transition-all group-hover:scale-125 group-hover:rotate-6">{category.icon}</span>
+            <span className="text-2xl filter drop-shadow-[0_0_10px_rgba(255,193,7,0.5)] transition-all group-hover:scale-125 group-hover:rotate-6">{category.icon}</span>
             <div className="h-[2px] flex-grow bg-brand/50" />
           </div>
-          <motion.h3 layout="position" className="text-xl md:text-2xl font-display font-black leading-tight text-white uppercase tracking-tighter drop-shadow-lg">
+          <motion.h3 layout="position" className="text-lg md:text-xl font-display font-black leading-tight text-white uppercase tracking-tighter drop-shadow-lg">
             {category.title}
           </motion.h3>
         </div>
@@ -142,7 +142,7 @@ export function ExamCategoryCard({
 
 
       <div 
-        className="absolute top-4 right-4 w-10 h-10 border-2 border-ink bg-brand flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-20 shadow-[4px_4px_0_0_#1A1A1A]"
+        className="absolute top-3 right-3 w-8 h-8 border-2 border-ink bg-brand flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-20 shadow-[3px_3px_0_0_#1A1A1A]"
       >
         <ChevronDown 
           size={20} 
@@ -175,7 +175,7 @@ export function ExamCategoryCard({
                                 e.stopPropagation(); 
                                 if (category.id === 12 && onViewMPSC) {
                                   onViewMPSC();
-                                } else if (exam === "Maharashtra State Police" && onViewPolice) {
+                                } else if (exam.includes("Maharashtra Police Bharti") && onViewPolice) {
                                   onViewPolice();
                                 } else if (exam === "MAHA TET (Maharashtra)" && onViewMAHATET) {
                                   onViewMAHATET();
@@ -185,7 +185,7 @@ export function ExamCategoryCard({
                                   onRegister();
                                 }
                               }}
-                              className="text-xs font-display font-black text-ink uppercase tracking-wider flex items-center gap-3 cursor-pointer hover:text-brand transition-colors"
+                              className="text-xs font-display font-black text-ink tracking-wider flex items-center gap-3 cursor-pointer hover:text-brand transition-colors"
                             >
                               <div className="w-2 h-2 bg-brand" />
                               <span>{exam}</span>

@@ -210,6 +210,19 @@ export const EXAM_CATEGORIES = [
     ]
   },
   {
+    id: 14,
+    title: "Police & Security Services",
+    icon: "👮",
+    thumb: "/Ashok stambh.png",
+    description: "Recruitments for State Police, BSF, CISF, and paramilitary forces.",
+    subcategories: [
+      {
+        name: "Security Forces",
+        exams: ["Maharashtra Police Bharti (Portal)", "Maharashtra Police Bharti", "Maharashtra Post Services", "Maharashtra Forest Service", "Delhi Police Constable/SI", "BSF / CISF / CRPF Recruitment", "State Reserved Police Force (SRPF)"]
+      }
+    ]
+  },
+  {
     id: 11,
     title: "Other Important Govt Exams",
     icon: "🌾",
@@ -218,7 +231,7 @@ export const EXAM_CATEGORIES = [
     subcategories: [
       {
         name: "Other Services",
-        exams: ["FCI (Food Corporation of India)", "EPFO EO/AO", "SEBI Grade A", "Maharashtra State Police", "Maharashtra Forest Service"]
+        exams: ["FCI (Food Corporation of India)", "EPFO EO/AO", "SEBI Grade A"]
       }
     ]
   }

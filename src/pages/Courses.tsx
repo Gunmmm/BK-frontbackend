@@ -8,6 +8,7 @@ interface CoursesProps {
   selectedCategory: number | null;
   activeNavCategory: number;
   dynamicCourses: any[];
+  dynamicExams: any[];
   onViewSyllabus: (id: number) => void;
   onRegister: () => void;
   onSelectCategory: (id: number | null) => void;
@@ -21,6 +22,7 @@ export const Courses: React.FC<CoursesProps> = ({
   selectedCategory,
   activeNavCategory,
   dynamicCourses,
+  dynamicExams,
   onViewSyllabus,
   onRegister,
   onSelectCategory,
@@ -62,9 +64,11 @@ export const Courses: React.FC<CoursesProps> = ({
         const map: Record<string, string> = {};
         allItems.forEach((item: any) => {
           if (item.examDate && item.category) {
-            // Sanitize: lowercase and remove special characters/spaces for perfect matching
             const cleanKey = item.category.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-            map[cleanKey] = item.examDate;
+            // Only set if not already present to preserve the latest item (sorted latest-to-oldest)
+            if (!map[cleanKey]) {
+              map[cleanKey] = item.examDate;
+            }
           }
         });
         setExamDates(map);
