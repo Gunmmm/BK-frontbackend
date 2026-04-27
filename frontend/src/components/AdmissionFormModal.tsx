@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, CheckCircle2, Download } from 'lucide-react';
+import { X, CheckCircle2, Download, Star, ChevronDown } from 'lucide-react';
+import FormLayout from './common/FormLayout';
 
 interface AdmissionFormModalProps {
   isOpen: boolean;
@@ -67,6 +68,11 @@ export default function AdmissionFormModal({ isOpen, onClose }: AdmissionFormMod
         setFormData(prev => ({ ...prev, [name]: file }));
       }
     } else {
+      if (name === 'motherMobile') {
+        const numericValue = value.replace(/\D/g, '').slice(0, 10);
+        setFormData(prev => ({ ...prev, [name]: numericValue }));
+        return;
+      }
       setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
@@ -83,13 +89,19 @@ export default function AdmissionFormModal({ isOpen, onClose }: AdmissionFormMod
   useEffect(() => {
     if (formData.dob) {
       const birthDate = new Date(formData.dob);
+      if (isNaN(birthDate.getTime())) return;
+      
       const today = new Date();
       let calculatedAge = today.getFullYear() - birthDate.getFullYear();
       const m = today.getMonth() - birthDate.getMonth();
       if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
         calculatedAge--;
       }
-      setFormData(prev => ({ ...prev, age: calculatedAge.toString() }));
+      
+      // Only set if age is reasonable
+      if (calculatedAge >= 0 && calculatedAge < 150) {
+        setFormData(prev => ({ ...prev, age: calculatedAge.toString() }));
+      }
     }
   }, [formData.dob]);
 
@@ -490,48 +502,41 @@ export default function AdmissionFormModal({ isOpen, onClose }: AdmissionFormMod
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             className="relative w-full max-w-2xl bg-white rounded-lg shadow-2xl z-50 overflow-hidden max-h-[95vh] overflow-y-auto"
           >
-            <div className="bg-ink text-white p-3 text-center relative">
-              <button 
-                onClick={onClose}
-                className="absolute top-1 right-1 p-1 hover:bg-white/20 rounded transition-colors"
-              >
-                <X size={14} />
-              </button>
-              <p className="text-[10px] font-bold"><span className="text-red-500">BK</span> Career Academy</p>
-            </div>
-
-            <div className="p-4 border-b flex justify-between text-[10px] sm:text-xs font-mono font-bold text-ink">
-              <div className="flex gap-2">
-                 <span className="text-muted">REGISTRATION NO:</span>
-                 <span className="text-brand px-2 bg-ink">{formData.registrationNo || 'LOADING...'}</span>
+            <FormLayout title="Admission Form">
+              <div className="p-4 border-b flex justify-between text-[10px] sm:text-xs font-mono font-bold text-ink">
+                <div className="flex gap-2">
+                   <span className="text-muted">REGISTRATION NO:</span>
+                   <span className="text-brand px-2 bg-ink">{formData.registrationNo || 'LOADING...'}</span>
+                </div>
+                <div className="flex gap-2">
+                   <span className="text-muted">FORM NO:</span>
+                   <span className="text-brand px-2 bg-ink">{formData.formNo || 'LOADING...'}</span>
+                </div>
               </div>
-              <div className="flex gap-2">
-                 <span className="text-muted">FORM NO:</span>
-                 <span className="text-brand px-2 bg-ink">{formData.formNo || 'LOADING...'}</span>
-              </div>
-            </div>
 
-            <div className="p-3 border-b text-center">
-              <h2 className="text-lg font-black uppercase">Admission Form</h2>
-            </div>
-
-            {!isSubmitted ? (
+              {!isSubmitted ? (
               <div className="admission-form-content">
                 <form onSubmit={handleSubmit} className="p-4 space-y-3">
-                <div>
-                  <p className="text-xs font-bold uppercase mb-2">Course / Exam Selection</p>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[10px] sm:text-xs">
-                    {courseOptions.map(course => (
-                      <label key={course} className="flex items-center gap-1 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={formData.courses.includes(course)}
-                          onChange={() => handleCourseToggle(course)}
-                          className="w-3 h-3"
-                        />
-                        <span>{course}</span>
-                      </label>
-                    ))}
+                <div className="space-y-1.5">
+                  <p className="text-[10px] font-bold uppercase">Course / Exam Selection:</p>
+                  <div className="relative">
+                    <select
+                      required
+                      name="courses"
+                      value={formData.courses[0] || ''}
+                      onChange={(e) => setFormData(prev => ({ ...prev, courses: [e.target.value] }))}
+                      className="w-full bg-background border-2 border-ink px-4 py-2 text-sm text-ink font-body appearance-none cursor-pointer transition-all duration-200 focus:outline-none focus:border-brand"
+                    >
+                      <option value="">Select Course / Exam</option>
+                      {courseOptions.map((course) => (
+                        <option key={course} value={course}>
+                          {course}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-ink">
+                      <ChevronDown size={16} />
+                    </div>
                   </div>
                 </div>
 
@@ -632,36 +637,82 @@ export default function AdmissionFormModal({ isOpen, onClose }: AdmissionFormMod
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <p className="text-xs font-bold uppercase">7. Date of Birth:</p>
-                    <input type="date" name="dob" value={formData.dob} onChange={handleInputChange} className="w-full border border-gray-300 px-2 py-1 text-sm" />
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] font-bold uppercase">7. Date of Birth:</p>
+                    <input 
+                      type="date" 
+                      name="dob" 
+                      required
+                      min="1950-01-01"
+                      max={new Date().toISOString().split('T')[0]}
+                      value={formData.dob} 
+                      onChange={handleInputChange} 
+                      className="w-full border border-gray-300 px-2 py-1 text-xs" 
+                    />
                   </div>
-                  <div className="space-y-2">
-                    <p className="text-xs font-bold uppercase">8. Age:</p>
-                    <input type="text" name="age" value={formData.age} onChange={handleInputChange} className="w-full border border-gray-300 px-2 py-1 text-sm" />
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] font-bold uppercase">8. Age (Auto-calculated):</p>
+                    <input 
+                      type="text" 
+                      name="age" 
+                      readOnly 
+                      value={formData.age ? `${formData.age} Years` : ''} 
+                      placeholder="Select DOB first"
+                      className="w-full border border-gray-300 bg-gray-50 px-2 py-1 text-xs font-bold text-brand cursor-not-allowed" 
+                    />
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <p className="text-xs font-bold uppercase">9. Gender:</p>
-                  <div className="flex gap-4 text-xs">
-                    {["Male", "Female", "Transgender", "Other"].map(g => (
-                      <label key={g} className="flex items-center gap-1 cursor-pointer">
-                        <input type="radio" name="gender" required value={g} onChange={handleInputChange} className="w-3 h-3" />
-                        <span>{g}</span>
-                      </label>
-                    ))}
+                <div className="space-y-1.5">
+                  <p className="text-[10px] font-bold uppercase">9. Gender:</p>
+                  <div className="relative">
+                    <select
+                      required
+                      name="gender"
+                      value={formData.gender}
+                      onChange={handleInputChange}
+                      className="w-full bg-background border-2 border-ink px-4 py-2 text-sm text-ink font-body appearance-none cursor-pointer transition-all duration-200 focus:outline-none focus:border-brand"
+                    >
+                      <option value="">Select Gender</option>
+                      {["Male", "Female", "Transgender", "Other"].map((g) => (
+                        <option key={g} value={g}>
+                          {g}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-ink">
+                      <ChevronDown size={16} />
+                    </div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <p className="text-xs font-bold uppercase">10. Mobile Number (Self):</p>
-                    <input type="tel" name="mobileSelf" required value={formData.mobileSelf} onChange={handleMobileChange} placeholder="10-digit number" className="w-full border border-gray-300 px-2 py-1 text-sm" />
+                    <input 
+                      type="tel" 
+                      name="mobileSelf" 
+                      required 
+                      pattern="[0-9]{10}"
+                      maxLength={10}
+                      value={formData.mobileSelf} 
+                      onChange={handleMobileChange} 
+                      placeholder="9876543210" 
+                      className="w-full border border-gray-300 px-2 py-1 text-sm" 
+                    />
                   </div>
                   <div className="space-y-2">
                     <p className="text-xs font-bold uppercase">11. Mobile Number (Parent):</p>
-                    <input type="tel" name="mobileParents" value={formData.mobileParents} onChange={handleMobileChange} placeholder="10-digit number" className="w-full border border-gray-300 px-2 py-1 text-sm" />
+                    <input 
+                      type="tel" 
+                      name="mobileParents" 
+                      pattern="[0-9]{10}"
+                      maxLength={10}
+                      value={formData.mobileParents} 
+                      onChange={handleMobileChange} 
+                      placeholder="9876543210" 
+                      className="w-full border border-gray-300 px-2 py-1 text-sm" 
+                    />
                   </div>
                 </div>
 
@@ -743,12 +794,26 @@ export default function AdmissionFormModal({ isOpen, onClose }: AdmissionFormMod
                   </div>
                 )}
 
-                <div className="space-y-2">
-                  <p className="text-xs font-bold uppercase">20. Category:</p>
-                  <div className="flex flex-wrap gap-2 text-xs">
-                    {categories.map(c => (
-                      <label key={c} className="flex items-center gap-1"><input type="radio" name="category" required value={c} onChange={handleInputChange} /> {c}</label>
-                    ))}
+                <div className="space-y-1.5">
+                  <p className="text-[10px] font-bold uppercase">20. Category:</p>
+                  <div className="relative">
+                    <select
+                      required
+                      name="category"
+                      value={formData.category}
+                      onChange={handleInputChange}
+                      className="w-full bg-background border-2 border-ink px-4 py-2 text-sm text-ink font-body appearance-none cursor-pointer transition-all duration-200 focus:outline-none focus:border-brand"
+                    >
+                      <option value="">Select Category</option>
+                      {categories.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-ink">
+                      <ChevronDown size={16} />
+                    </div>
                   </div>
                 </div>
 
@@ -769,7 +834,16 @@ export default function AdmissionFormModal({ isOpen, onClose }: AdmissionFormMod
                     </div>
                     <div>
                       <p>Mother's Mobile:</p>
-                      <input type="tel" name="motherMobile" value={formData.motherMobile} onChange={handleInputChange} className="w-full border border-gray-300 px-2 py-1" />
+                      <input 
+                        type="tel" 
+                        name="motherMobile" 
+                        pattern="[0-9]{10}"
+                        maxLength={10}
+                        value={formData.motherMobile} 
+                        onChange={handleInputChange} 
+                        className="w-full border border-gray-300 px-2 py-1" 
+                        placeholder="9876543210"
+                      />
                     </div>
                     <div>
                       <p>Mother's Education:</p>
@@ -808,32 +882,34 @@ export default function AdmissionFormModal({ isOpen, onClose }: AdmissionFormMod
                 </form>
                 </div>
             ) : (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="p-10 text-center"
-              >
-                <div className="w-16 h-16 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle2 size={32} />
-                </div>
-                <h3 className="text-xl font-bold text-gray-800 mb-2">Submitted Successfully!</h3>
-                <p className="text-gray-500 text-sm mb-6">We have sent the form to your email. We will contact you soon.</p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <button
-                    onClick={generatePDF}
-                    className="px-6 py-3 bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-500 transition-colors flex items-center gap-2"
-                  >
-                    <Download size={18} /> Download Form
-                  </button>
-                  <button
-                    onClick={onClose}
-                    className="px-8 py-3 bg-gray-800 text-white rounded-lg font-medium hover:bg-black transition-colors"
-                  >
-                    Close
-                  </button>
-                </div>
-              </motion.div>
-            )}
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-center py-12 px-6"
+                >
+                  <div className="w-20 h-20 bg-brand flex items-center justify-center mx-auto mb-8">
+                    <Star size={32} className="text-ink" fill="currentColor" />
+                  </div>
+                  <h2 className="text-2xl font-display font-black text-ink mb-2 uppercase">Admission Submitted!</h2>
+                  <p className="text-sm text-muted mb-8 italic">Your application has been received. Please download your form copy below.</p>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md mx-auto">
+                    <button
+                      onClick={generatePDF}
+                      className="flex items-center justify-center gap-2 bg-brand text-ink font-display font-bold uppercase tracking-wider px-6 py-3 transition-all duration-300 hover:bg-ink hover:text-brand border-2 border-brand"
+                    >
+                      <Download size={18} /> Print Form
+                    </button>
+                    <button
+                      onClick={handleClose}
+                      className="bg-ink text-brand font-display font-bold uppercase tracking-wider px-6 py-3 transition-all duration-300 hover:bg-brand hover:text-ink border-2 border-ink"
+                    >
+                      Close Portal
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </FormLayout>
           </motion.div>
         </div>
       )}

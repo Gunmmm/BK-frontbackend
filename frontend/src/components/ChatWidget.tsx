@@ -2,37 +2,16 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Star, ArrowRight, Quote, Ticket, User, Phone, MessageSquare } from 'lucide-react';
 
-
-
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [isRaisingTicket, setIsRaisingTicket] = useState(false);
   const [ticketForm, setTicketForm] = useState({ name: '', phone: '', issue: '' });
   const [messages, setMessages] = useState<{role: 'bot' | 'user', text: string}[]>([
-    { role: 'bot', text: 'OFFICIAL COMMUNICATION: I am the Chief Academic Dean at BK Career Academy. I am authorized to provide strategic guidance for UPSC, MPSC, and related administrative recruitment protocols. State your query clearly.' }
+    { role: 'bot', text: 'Namaste! I am your BK Career Academy Assistant. I can help you with UPSC, MPSC or general admissions. How can I assist you today?' }
   ]);
   const [isTyping, setIsTyping] = useState(false);
-  const [showPopup, setShowPopup] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!isOpen) {
-      // Show popup after 2 seconds
-      const showTimer = setTimeout(() => {
-        setShowPopup(true);
-        // Hide popup after 5 seconds of being shown
-        const hideTimer = setTimeout(() => {
-          setShowPopup(false);
-        }, 3000);
-        return () => clearTimeout(hideTimer);
-      }, 2000);
-      
-      return () => clearTimeout(showTimer);
-    } else {
-      setShowPopup(false);
-    }
-  }, [isOpen]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -59,11 +38,16 @@ export default function ChatWidget() {
       const data = await response.json();
       if (data.success) {
         setMessages(prev => [...prev, { role: 'bot', text: data.reply }]);
+        
+        // If the reply mentions ticket, show the button
+        if (data.reply.toLowerCase().includes('ticket')) {
+          // No action needed here, the 'Raise Ticket' button is always visible or context-aware
+        }
       } else {
-        setMessages(prev => [...prev, { role: 'bot', text: "ADMINISTRATIVE ERROR: Connection to protocol server lost." }]);
+        setMessages(prev => [...prev, { role: 'bot', text: "I'm having trouble connecting to my knowledge base. Please try again later or call us directly." }]);
       }
     } catch (err) {
-      setMessages(prev => [...prev, { role: 'bot', text: "COMMUNICATION FAILURE: Direct all inquiries to the official hotline." }]);
+      setMessages(prev => [...prev, { role: 'bot', text: "Namaste! Our automated systems are resting. Please leave your number or raise a ticket!" }]);
     } finally {
       setIsTyping(false);
     }
@@ -80,13 +64,13 @@ export default function ChatWidget() {
       });
       const data = await response.json();
       if (data.success) {
-        setMessages(prev => [...prev, { role: 'bot', text: `✅ OFFICIAL RECORD: Ticket Raised. Ref Name: ${ticketForm.name}. Response expected within 24 operational hours. JAY HIND.` }]);
+        setMessages(prev => [...prev, { role: 'bot', text: `✅ Ticket Raised! Ref Name: ${ticketForm.name}. Our mentors will contact you on ${ticketForm.phone} within 24 hours.` }]);
         setIsRaisingTicket(false);
         setTicketForm({ name: '', phone: '', issue: '' });
       }
     } catch (err: any) {
       console.error('Ticket Error:', err);
-      setMessages(prev => [...prev, { role: 'bot', text: `ERROR: Protocol submission failed. Contact headquarters directly.` }]);
+      setMessages(prev => [...prev, { role: 'bot', text: `Sorry, I couldn't raise the ticket. (${err.message}). Please call us directly.` }]);
     } finally {
       setIsTyping(false);
     }
@@ -95,39 +79,21 @@ export default function ChatWidget() {
   return (
     <div className="fixed bottom-4 sm:bottom-8 right-4 sm:right-8 z-[90]">
       <AnimatePresence>
-        {showPopup && !isOpen && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: 10, x: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 10, x: 20 }}
-            className="absolute bottom-24 right-0 w-72 bg-ink/95 backdrop-blur-md text-white p-6 border-l-8 border-brand shadow-[0_20px_50px_rgba(0,0,0,0.3)] rounded-2xl pointer-events-none"
-          >
-            <div className="text-[10px] font-mono text-brand uppercase tracking-widest mb-1">Academic Guidance</div>
-            <div className="text-sm font-display font-bold leading-tight">Aspirant, how can we assist your strategic preparation today?</div>
-            {/* Triangle Tip */}
-            <div className="absolute bottom-[-10px] right-6 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[10px] border-t-ink" />
-          </motion.div>
-        )}
-
         {isOpen && (
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, y: 20, transformOrigin: 'bottom right' }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="absolute bottom-24 right-0 w-[calc(100vw-2rem)] sm:w-96 bg-white border-2 border-ink overflow-hidden flex flex-col h-[500px] shadow-2xl"
+            className="absolute bottom-20 right-0 w-[calc(100vw-2rem)] sm:w-96 bg-white border-2 border-ink overflow-hidden flex flex-col h-[500px] shadow-2xl"
           >
             <div className="p-4 bg-ink flex items-center justify-between relative overflow-hidden">
               <div className="flex items-center gap-3 relative z-10">
-                <motion.div 
-                  animate={{ scale: [1, 1.05, 1] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                  className="w-10 h-10 border-2 border-brand bg-ink flex items-center justify-center overflow-hidden shrink-0"
-                >
-                  <MessageSquare size={24} className="text-brand" />
-                </motion.div>
+                <div className="w-10 h-10 border-2 border-brand bg-white flex items-center justify-center overflow-hidden shrink-0">
+                  <img src="/images/chatboot/gov.png" alt="BK" className="w-full h-full object-cover" />
+                </div>
                 <div>
-                  <div className="text-white font-display font-bold text-sm uppercase">Chief Academic Dean</div>
-                  <div className="text-brand/60 text-[10px] uppercase font-mono tracking-widest">Official Channel • JAY HIND</div>
+                  <div className="text-white font-display font-bold text-sm uppercase"><span className="text-red-600">BK</span> Assistant</div>
+                  <div className="text-brand/60 text-[10px] uppercase font-mono">Live Help • Jay Hind</div>
                 </div>
               </div>
               <button onClick={() => setIsOpen(false)} className="text-brand hover:text-white transition-colors">
@@ -139,7 +105,12 @@ export default function ChatWidget() {
               {messages.map((msg, i) => (
                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div className={`p-3 px-4 text-[13px] ${msg.role === 'user' ? 'bg-brand text-ink font-semibold' : 'bg-white border-2 border-ink/10 text-ink'}`}>
-                    {msg.text}
+                    {msg.text.split('BK').map((part, index, arr) => (
+                      <React.Fragment key={index}>
+                        {part}
+                        {index < arr.length - 1 && <span className="text-red-600">BK</span>}
+                      </React.Fragment>
+                    ))}
                   </div>
                 </div>
               ))}
@@ -177,15 +148,10 @@ export default function ChatWidget() {
                     <div className="relative">
                       <Phone size={12} className="absolute left-3 top-3 text-muted" />
                       <input 
-                        placeholder="Phone Number (10 Digits)"
-                        type="tel"
-                        maxLength={10}
+                        placeholder="Phone Number"
                         className="w-full pl-8 pr-3 py-2 border border-ink/20 text-xs focus:border-brand outline-none"
                         value={ticketForm.phone}
-                        onChange={e => {
-                          const val = e.target.value.replace(/\D/g, '').slice(0, 10);
-                          setTicketForm({...ticketForm, phone: val});
-                        }}
+                        onChange={e => setTicketForm({...ticketForm, phone: e.target.value})}
                       />
                     </div>
                     <div className="relative">
@@ -201,7 +167,7 @@ export default function ChatWidget() {
                   <div className="flex gap-2">
                     <button 
                       onClick={handleRaiseTicket}
-                      disabled={!ticketForm.name || ticketForm.phone.length !== 10 || !ticketForm.issue}
+                      disabled={!ticketForm.name || !ticketForm.phone || !ticketForm.issue}
                       className="flex-grow bg-brand text-ink py-2 text-[11px] font-bold uppercase disabled:opacity-50"
                     >
                       Submit Ticket
@@ -228,45 +194,33 @@ export default function ChatWidget() {
 
             {!isRaisingTicket && (
               <form onSubmit={handleSendMessage} className="p-4 bg-white border-t-2 border-ink flex gap-2">
-              <input 
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Submit your administrative query..."
-                className="flex-grow bg-background border-2 border-ink px-4 py-2.5 text-xs outline-none focus:border-brand"
-              />
-              <button type="submit" className="w-10 h-10 bg-brand text-ink flex items-center justify-center hover:bg-ink hover:text-brand transition-colors">
-                <ArrowRight size={18} strokeWidth={2.5} />
-              </button>
-            </form>
+                <input 
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Ask your query or say 'Help'..."
+                  className="flex-grow bg-background border-2 border-ink px-4 py-2.5 text-xs outline-none focus:border-brand"
+                />
+                <button type="submit" className="w-10 h-10 bg-brand text-ink flex items-center justify-center hover:bg-ink hover:text-brand transition-colors">
+                  <ArrowRight size={18} strokeWidth={2.5} />
+                </button>
+              </form>
             )}
           </motion.div>
         )}
       </AnimatePresence>
 
       <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        animate={!isOpen ? {
-          y: [0, -4, 0],
-          skewX: [0, 2, 0, -2, 0]
-        } : { y: 0, scale: 1 }}
-        transition={!isOpen ? {
-          duration: 3,
-          repeat: Infinity,
-          ease: "easeInOut",
-        } : { duration: 0.3 }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-16 h-16 rounded-full flex items-center justify-center overflow-hidden shadow-2xl border-4 border-ink bg-brand p-0 relative group"
+        className="w-20 h-20 flex items-center justify-center transform-gpu overflow-visible"
       >
-        {isOpen ? <X size={28} strokeWidth={3} className="text-white" /> : (
-          <div className="relative">
-            <MessageSquare size={28} strokeWidth={2.5} className="text-ink relative z-10" />
-            <motion.div 
-              animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0, 0.5] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="absolute inset-0 bg-brand rounded-full -z-10 blur-md"
-            />
+        {isOpen ? (
+          <div className="w-12 h-12 bg-ink rounded-full flex items-center justify-center text-brand border-2 border-brand shadow-xl">
+            <X size={26} />
           </div>
+        ) : (
+          <img src="/images/chatboot/gov.png" alt="Chat" className="w-full h-full object-cover drop-shadow-2xl rounded-lg" />
         )}
       </motion.button>
     </div>

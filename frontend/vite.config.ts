@@ -22,7 +22,7 @@ export default defineConfig(({mode}) => {
       allowedHosts: ["localhost", "127.0.0.1", "lethally-tartarous-fermin.ngrok-free.dev"],
       proxy: {
         '/api': {
-          target: 'http://127.0.0.1:3005',
+          target: 'http://localhost:3005',
           changeOrigin: true,
           secure: false,
         }

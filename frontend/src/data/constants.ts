@@ -9,19 +9,19 @@ export const STAFF = [
   },
   {
     id: 2,
-    name: "Meera Deshmukh",
-    role: "Senior Strategist",
-    specialty: "Discipline & Planning",
-    image: "/images/staff/meera.png",
-    bio: "Former policy consultant specializing in academic discipline and strategic career planning for elite aspirants."
+    name: "Dnyaneshaw Nikalje",
+    role: "Senior Polity Faculty",
+    specialty: "Polity & Constitution",
+    image: "/images/staff/dnayneshwar.png",
+    bio: "With over 8 years of experience in competitive exams, Dnyaneshaw Nikalje is a renowned expert in Indian Polity and Governance."
   },
   {
     id: 3,
-    name: "Vikram Rathore",
-    role: "Chief Mentor",
-    specialty: "Tech & Leadership",
-    image: "/images/staff/vikram.png",
-    bio: "Expert in integrating technology with leadership skills, helping students master modern administrative challenges."
+    name: "Miss. Swati Waghchaure",
+    role: "Reasoning Specialist",
+    specialty: "Logical Reasoning",
+    image: "/images/staff/swati.jpeg",
+    bio: "Expert in Logical Reasoning and Mental Ability, helping students simplify complex puzzles and analytical challenges."
   },
   {
     id: 4,
@@ -210,19 +210,6 @@ export const EXAM_CATEGORIES = [
     ]
   },
   {
-    id: 14,
-    title: "Police & Security Services",
-    icon: "👮",
-    thumb: "/Ashok stambh.png",
-    description: "Recruitments for State Police, BSF, CISF, and paramilitary forces.",
-    subcategories: [
-      {
-        name: "Security Forces",
-        exams: ["Maharashtra Police Bharti (Portal)", "Maharashtra Police Bharti", "Maharashtra Post Services", "Maharashtra Forest Service", "Delhi Police Constable/SI", "BSF / CISF / CRPF Recruitment", "State Reserved Police Force (SRPF)"]
-      }
-    ]
-  },
-  {
     id: 11,
     title: "Other Important Govt Exams",
     icon: "🌾",
@@ -231,7 +218,7 @@ export const EXAM_CATEGORIES = [
     subcategories: [
       {
         name: "Other Services",
-        exams: ["FCI (Food Corporation of India)", "EPFO EO/AO", "SEBI Grade A"]
+        exams: ["FCI (Food Corporation of India)", "EPFO EO/AO", "SEBI Grade A", "Maharashtra State Police", "Maharashtra Forest Service"]
       }
     ]
   }

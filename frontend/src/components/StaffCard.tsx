@@ -78,26 +78,26 @@ export const StaffCard: React.FC<StaffCardProps> = ({ member, index }) => {
 
       <div 
         style={{ transform: "translateZ(40px)" }}
-        className="p-8 pt-20 flex flex-col items-center text-center flex-grow relative z-10"
+        className="p-5 sm:p-8 pt-20 flex flex-col items-center text-center flex-grow relative z-10"
       >
-        <div className="mb-4">
-          <span className="inline-block px-4 py-1.5 bg-brand/90 text-ink text-[10px] font-black uppercase tracking-widest rounded-full shadow-md shadow-brand/10 border border-ink/5">
+        <div className="mb-3 sm:mb-4">
+          <span className="inline-block px-3 py-1 md:px-4 md:py-1.5 bg-brand text-ink text-[9px] md:text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-brand/20 border-2 border-ink">
             {member.specialty}
           </span>
         </div>
 
-        <h3 className="text-2xl font-display font-black leading-tight mb-1 text-ink uppercase tracking-tighter group-hover:text-brand transition-colors duration-300">
+        <h3 className="text-xl md:text-2xl font-display font-black leading-[1.1] mb-1 text-ink uppercase tracking-tight group-hover:text-brand transition-colors duration-300 break-words w-full">
           {member.name}
         </h3>
-        <div className="text-brand font-mono text-[10px] uppercase tracking-[0.2em] font-black mb-6">
+        <div className="text-brand font-mono text-[9px] md:text-[10px] uppercase tracking-[0.2em] font-black mb-4 md:mb-6">
           {member.role}
         </div>
         
-        <p className="text-sm text-ink/70 font-body leading-relaxed mb-6 line-clamp-3">
+        <p className="text-xs md:text-sm text-ink/70 font-body leading-relaxed mb-6 line-clamp-3 md:line-clamp-4">
           {member.bio}
         </p>
 
-        <div className="mt-auto flex gap-4 text-ink/40 group-hover:text-ink/80 transition-colors">
+        <div className="mt-auto flex gap-3 md:gap-4 text-ink/40 group-hover:text-ink/80 transition-colors">
           <div className="w-8 h-8 rounded-full bg-ink/5 flex items-center justify-center hover:bg-brand hover:text-ink transition-colors cursor-pointer border border-transparent hover:border-ink/10 shadow-sm active:scale-95">
              <Linkedin size={14} />
           </div>

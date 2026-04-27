@@ -38,7 +38,7 @@ const LeadLogin: React.FC<LeadLoginProps> = ({ onLogin, showSkip = true, onCance
 
         {/* Branding Watermark */}
         <div className="absolute -top-10 -right-10 text-8xl font-display font-black text-ink/[0.03] select-none pointer-events-none">
-          BKCA
+          <span className="text-red-600">BK</span>CA
         </div>
 
         {onCancel && (

@@ -1,31 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ChevronDown, Clock } from "lucide-react";
-
-// ── Mini Countdown ──────────────────────────────────────────────────────────
-function useCountdown(examDate: string | null) {
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, active: false });
-
-  useEffect(() => {
-    if (!examDate) return;
-    const calc = () => {
-      const diff = new Date(examDate).getTime() - Date.now();
-      if (diff <= 0) { setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, active: false }); return; }
-      setTimeLeft({
-        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-        minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
-        seconds: Math.floor((diff % (1000 * 60)) / 1000),
-        active: true
-      });
-    };
-    calc();
-    const id = setInterval(calc, 1000);
-    return () => clearInterval(id);
-  }, [examDate]);
-
-  return timeLeft;
-}
+import { ChevronDown } from "lucide-react";
 
 interface ExamCategoryCardProps {
   category: any;
@@ -39,8 +14,6 @@ interface ExamCategoryCardProps {
   onViewMPSC?: () => void;
   onViewPolice?: () => void;
   onViewMAHATET?: () => void;
-  onViewDynamicExam?: (examName: string) => void;
-  examDate?: string | null;
 }
 
 export function ExamCategoryCard({ 
@@ -54,12 +27,8 @@ export function ExamCategoryCard({
   onSelect,
   onViewMPSC,
   onViewPolice,
-  onViewMAHATET,
-  onViewDynamicExam,
-  examDate
+  onViewMAHATET
 }: ExamCategoryCardProps) {
-  const countdown = useCountdown(examDate || null);
-
   return (
     <motion.div 
       layout
@@ -77,72 +46,30 @@ export function ExamCategoryCard({
       )}
       <motion.div 
         layout="position"
-        animate={{ height: isOpen ? 200 : 160 }} 
+        animate={{ height: isOpen ? 220 : 180 }} 
         className="relative w-full shrink-0 bg-ink overflow-hidden"
       >
         <img 
           src={category.thumb} 
           alt={`${category.title} Coaching`}
-          className="absolute inset-0 w-full h-full object-cover object-[center_30%] brightness-75 group-hover:brightness-100 group-hover:scale-110 transition-all duration-1000"
+          className="absolute inset-0 w-full h-full object-cover grayscale brightness-50 group-hover:grayscale-0 group-hover:brightness-100 group-hover:scale-110 transition-all duration-1000"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-transparent opacity-80" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_rgba(0,0,0,0.4)_100%)]" />
         
-        <div className="absolute inset-x-0 bottom-0 p-5 flex flex-col justify-end pointer-events-none">
+        <div className="absolute inset-x-0 bottom-0 p-6 flex flex-col justify-end pointer-events-none">
           <div className="flex items-center gap-3 mb-2">
-            <span className="text-2xl filter drop-shadow-[0_0_10px_rgba(255,193,7,0.5)] transition-all group-hover:scale-125 group-hover:rotate-6">{category.icon}</span>
+            <span className="text-3xl filter drop-shadow-[0_0_10px_rgba(255,193,7,0.5)] transition-all group-hover:scale-125 group-hover:rotate-6">{category.icon}</span>
             <div className="h-[2px] flex-grow bg-brand/50" />
           </div>
-          <motion.h3 layout="position" className="text-lg md:text-xl font-display font-black leading-tight text-white uppercase tracking-tighter drop-shadow-lg">
+          <motion.h3 layout="position" className="text-xl md:text-2xl font-display font-black leading-tight text-white uppercase tracking-tighter drop-shadow-lg">
             {category.title}
           </motion.h3>
         </div>
       </motion.div>
 
-      {/* ── COUNTDOWN TIMER ON CARD ── */}
-      <div className="bg-[#111] border-t-4 border-[#F7931A] px-4 py-4 pointer-events-none">
-        {countdown.active ? (
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <Clock size={12} className="text-[#F7931A] animate-pulse" />
-              <span className="text-[10px] font-mono font-black text-[#F7931A] uppercase tracking-[0.25em]">Exam Countdown</span>
-            </div>
-            <div className="grid grid-cols-4 gap-2">
-              {[
-                { val: countdown.days, label: 'Days' },
-                { val: countdown.hours, label: 'Hrs' },
-                { val: countdown.minutes, label: 'Min' },
-                { val: countdown.seconds, label: 'Sec' },
-              ].map((b) => (
-                <div key={b.label} className="text-center">
-                  <div className="bg-[#F7931A] py-2 px-1 shadow-[3px_3px_0_0_#000]">
-                    <span className="text-black font-black font-mono tabular-nums text-2xl leading-none block">
-                      {String(b.val).padStart(2, '0')}
-                    </span>
-                  </div>
-                  <p className="text-[9px] font-mono font-black uppercase text-[#F7931A] mt-1.5 tracking-widest">{b.label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div className="flex items-center justify-between py-1">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full border-2 border-[#F7931A]/20 flex items-center justify-center">
-                <Clock size={14} className="text-[#F7931A]/30" />
-              </div>
-              <span className="text-[10px] font-mono font-black text-[#F7931A]/30 uppercase tracking-[0.2em]">Live Timer Not Activated</span>
-            </div>
-            <div className="text-[8px] font-mono text-[#F7931A]/20 uppercase border border-[#F7931A]/10 px-2 py-1">
-              Waiting for Data...
-            </div>
-          </div>
-        )}
-      </div>
-
-
       <div 
-        className="absolute top-3 right-3 w-8 h-8 border-2 border-ink bg-brand flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-20 shadow-[3px_3px_0_0_#1A1A1A]"
+        className="absolute top-4 right-4 w-10 h-10 border-2 border-ink bg-brand flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-20 shadow-[4px_4px_0_0_#1A1A1A]"
       >
         <ChevronDown 
           size={20} 
@@ -175,17 +102,15 @@ export function ExamCategoryCard({
                                 e.stopPropagation(); 
                                 if (category.id === 12 && onViewMPSC) {
                                   onViewMPSC();
-                                } else if (exam.includes("Maharashtra Police Bharti") && onViewPolice) {
+                                } else if (exam === "Maharashtra State Police" && onViewPolice) {
                                   onViewPolice();
                                 } else if (exam === "MAHA TET (Maharashtra)" && onViewMAHATET) {
                                   onViewMAHATET();
-                                } else if (onViewDynamicExam) {
-                                  onViewDynamicExam(category.title);
                                 } else {
                                   onRegister();
                                 }
                               }}
-                              className="text-xs font-display font-black text-ink tracking-wider flex items-center gap-3 cursor-pointer hover:text-brand transition-colors"
+                              className="text-xs font-display font-black text-ink uppercase tracking-wider flex items-center gap-3 cursor-pointer hover:text-brand transition-colors"
                             >
                               <div className="w-2 h-2 bg-brand" />
                               <span>{exam}</span>
@@ -211,14 +136,7 @@ export function ExamCategoryCard({
                   {isSelected ? 'Remove Selection' : 'Select Course'}
                 </button>
                 <button 
-                  onClick={(e) => { 
-                    e.stopPropagation(); 
-                    if (onViewDynamicExam) {
-                      onViewDynamicExam(category.title);
-                    } else {
-                      onViewSyllabus(); 
-                    }
-                  }}
+                  onClick={(e) => { e.stopPropagation(); onViewSyllabus(); }}
                    className="btn-brutalist w-full"
                  >
                    Open Strategy Portal

@@ -32,20 +32,18 @@ const VisitorCounter = () => {
   }, []);
 
   return (
-    <div className="mt-8 pt-8 border-t border-ink/5">
-      <div className="flex items-center gap-4">
-        <div className="relative">
-          <div className="w-12 h-12 bg-white border-2 border-ink flex items-center justify-center shadow-[4px_4px_0_0_#1A1A1A]">
-            <Users size={20} className="text-ink" />
-          </div>
+    <div className="mt-6 flex items-center gap-4">
+      <div className="relative">
+        <div className="w-10 h-10 bg-white border-2 border-ink flex items-center justify-center shadow-[2px_2px_0_0_#1A1A1A]">
+          <Users size={16} className="text-ink" />
         </div>
-        <div className="flex flex-col">
-          <div className="text-2xl font-display font-black text-ink leading-none">
-            {count.toLocaleString()}
-          </div>
-          <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted mt-1 flex items-center gap-2">
-            Total Portal Visits 
-          </div>
+      </div>
+      <div className="flex flex-col">
+        <div className="text-xl font-display font-black text-ink leading-none">
+          {count.toLocaleString()}
+        </div>
+        <div className="text-[8px] font-mono uppercase tracking-[0.2em] text-muted mt-1">
+          Total Portal Visits 
         </div>
       </div>
     </div>
@@ -73,14 +71,14 @@ export const Footer: React.FC<FooterProps> = ({ setView, setSelectedCategory }) 
     <footer className="relative bg-white border-t-8 border-ink pt-20 pb-12 px-8 overflow-hidden">
       {/* Decorative Branding Watermark */}
       <div className="absolute top-0 right-0 text-[15rem] font-display font-black text-ink/[0.02] leading-none select-none -translate-y-1/4 translate-x-1/4">
-        BKCA
+        <span className="text-red-600">BK</span>CA
       </div>
 
-      <div className="max-w-[1800px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-16 mb-20 relative z-10">
-        <div className="lg:col-span-2">
+      <div className="max-w-[1800px] mx-auto grid grid-cols-2 lg:grid-cols-5 gap-y-12 gap-x-6 md:gap-16 mb-20 relative z-10">
+        <div className="col-span-2 lg:col-span-2">
           <div className="flex items-center gap-4 mb-8">
             <div className="w-12 h-12 border-4 border-ink flex items-center justify-center bg-brand">
-              <span className="font-display font-black text-2xl">BK</span>
+              <span className="font-display font-black text-2xl text-red-600">BK</span>
             </div>
             <div className="flex flex-col">
               <span className="text-xl font-display font-black uppercase leading-none text-ink">Career Academy</span>
@@ -90,19 +88,7 @@ export const Footer: React.FC<FooterProps> = ({ setView, setSelectedCategory }) 
           <p className="text-muted font-body text-sm leading-relaxed max-w-sm mb-10">
             Founded with the sole purpose of democratizing elite civil services coaching. We don't just teach modules; we forge administrative leaders for India's future.
           </p>
-          <div className="flex items-center gap-8">
-            <div className="flex flex-col">
-              <span className="text-3xl font-display font-black text-ink">10K+</span>
-              <span className="text-[10px] font-mono uppercase tracking-widest text-brand font-bold">Trusted Aspirants</span>
-            </div>
-            <div className="w-px h-10 bg-ink/10" />
-            <div className="flex flex-col">
-              <span className="text-3xl font-display font-black text-ink">95%</span>
-              <span className="text-[10px] font-mono uppercase tracking-widest text-brand font-bold">Strategic Success</span>
-            </div>
           </div>
-          <VisitorCounter />
-        </div>
 
         <div>
           <h4 className="text-lg font-display font-bold mb-8 flex items-center gap-3">
@@ -130,39 +116,47 @@ export const Footer: React.FC<FooterProps> = ({ setView, setSelectedCategory }) 
           </ul>
         </div>
 
-        <div>
+        <div className="col-span-2 lg:col-span-1">
           <h4 className="text-lg font-display font-bold mb-6 uppercase tracking-wider text-ink">Corporate Office</h4>
           <div className="space-y-6">
-            <div className="flex gap-3">
-              <div className="w-8 h-8 rounded-none bg-brand/10 flex items-center justify-center shrink-0">
-                <div className="w-2 h-2 rounded-none bg-brand" />
+            <a 
+              href="https://www.google.com/maps/search/?api=1&query=BK+Career+Academy+Gajanan+Plaza+Nashik" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex gap-3 group/item hover:text-brand transition-colors"
+            >
+              <div className="w-8 h-8 rounded-none bg-brand/10 flex items-center justify-center shrink-0 group-hover/item:bg-brand transition-colors">
+                <div className="w-2 h-2 rounded-none bg-brand group-hover/item:bg-ink" />
               </div>
-              <p className="text-sm text-muted leading-relaxed">
+              <p className="text-sm text-muted leading-relaxed group-hover/item:text-ink transition-colors">
                 2nd Floor, Gajanan Plaza,<br />
                 Gharpura Ghat Rd, Nashik,<br />
                 Maharashtra 422002
               </p>
-            </div>
-            <div className="flex flex-col gap-1 text-xl font-display font-bold text-brand">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-none bg-brand/10 flex items-center justify-center shrink-0">
-                  <div className="w-2 h-2 rounded-none bg-brand" />
+            </a>
+            <div className="flex flex-col gap-3 font-display font-bold text-brand">
+              <a href="tel:02532313962" className="flex items-center gap-3 hover:text-ink transition-colors group/tel">
+                <div className="w-8 h-8 rounded-none bg-brand/10 flex items-center justify-center shrink-0 group-hover/tel:bg-brand">
+                  <div className="w-2 h-2 rounded-none bg-brand group-hover/tel:bg-ink" />
                 </div>
-                0253-2313962
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-none bg-brand/10 flex items-center justify-center shrink-0">
-                  <div className="w-2 h-2 rounded-none bg-brand" />
+                <span className="text-xl">0253-2313962</span>
+              </a>
+              <a href="tel:9890633962" className="flex items-center gap-3 hover:text-ink transition-colors group/tel">
+                <div className="w-8 h-8 rounded-none bg-brand/10 flex items-center justify-center shrink-0 group-hover/tel:bg-brand">
+                  <div className="w-2 h-2 rounded-none bg-brand group-hover/tel:bg-ink" />
                 </div>
-                9890633962
-              </div>
+                <span className="text-xl">9890633962</span>
+              </a>
             </div>
-            <div className="flex items-center gap-3 text-sm font-display font-bold text-ink/60">
-              <div className="w-8 h-8 rounded-none bg-brand/10 flex items-center justify-center shrink-0">
-                <div className="w-2 h-2 rounded-none bg-brand" />
+            <a 
+              href="mailto:bkgroupofeducation@gmail.com" 
+              className="flex items-center gap-3 text-sm font-display font-bold text-ink/60 hover:text-brand transition-colors group/email"
+            >
+              <div className="w-8 h-8 rounded-none bg-brand/10 flex items-center justify-center shrink-0 group-hover/email:bg-brand">
+                <div className="w-2 h-2 rounded-none bg-brand group-hover/email:bg-ink" />
               </div>
-              bkgroupofeducation@gmail.com
-            </div>
+              <span>bkgroupofeducation@gmail.com</span>
+            </a>
             <div className="flex gap-4 pt-2">
               <SocialIcon Icon={Facebook} href="https://www.facebook.com/profile.php?id=61581568062602" />
               <SocialIcon Icon={Instagram} href="https://www.instagram.com/bk_groupofeducation/" />
@@ -170,6 +164,7 @@ export const Footer: React.FC<FooterProps> = ({ setView, setSelectedCategory }) 
               <SocialIcon Icon={Linkedin} href="https://www.linkedin.com/company/112511315/admin/dashboard/" />
               <SocialIcon Icon={Youtube} href="https://www.youtube.com/@bktimesnews" />
             </div>
+            <VisitorCounter />
           </div>
         </div>
       </div>
@@ -177,7 +172,7 @@ export const Footer: React.FC<FooterProps> = ({ setView, setSelectedCategory }) 
       <div className="max-w-[1800px] mx-auto pt-10 border-t border-ink/10 flex flex-col md:flex-row justify-between items-center gap-6">
         <div className="flex items-center gap-4 cursor-pointer group" onClick={() => { setView('home'); setSelectedCategory(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
            <div className="w-10 h-10 border-4 border-ink flex items-center justify-center bg-brand group-hover:rotate-6 transition-transform">
-              <span className="font-display font-black text-xl">BK</span>
+              <span className="font-display font-black text-xl text-red-600">BK</span>
             </div>
           <div className="flex flex-col">
             <div className="text-lg text-ink font-display font-black uppercase leading-none">Career Academy</div>
@@ -185,10 +180,10 @@ export const Footer: React.FC<FooterProps> = ({ setView, setSelectedCategory }) 
           </div>
         </div>
         <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 text-xs text-muted font-mono uppercase tracking-widest opacity-60">
-          <a href="#" className="hover:text-brand transition-colors">CSR Policy</a>
-          <a href="#" className="hover:text-brand transition-colors">Privacy Policy</a>
-          <a href="#" className="hover:text-brand transition-colors">Refund Rules</a>
-          <a href="#" className="hover:text-brand transition-colors">Terms & Conditions</a>
+          <button onClick={() => setView('csrPolicy')} className="hover:text-brand transition-colors cursor-pointer">CSR Policy</button>
+          <button onClick={() => setView('privacyPolicy')} className="hover:text-brand transition-colors cursor-pointer">Privacy Policy</button>
+          <button onClick={() => setView('refundRules')} className="hover:text-brand transition-colors cursor-pointer">Refund Rules</button>
+          <button onClick={() => setView('termsConditions')} className="hover:text-brand transition-colors cursor-pointer">Terms & Conditions</button>
         </div>
       </div>
     </footer>

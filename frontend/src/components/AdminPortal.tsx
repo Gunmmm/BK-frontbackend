@@ -9,10 +9,9 @@ import {
 
 interface AdminPortalProps {
   onBack: () => void;
-  onUpdate?: () => void;
 }
 
-export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
+export default function AdminPortal({ onBack }: AdminPortalProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [adminUser, setAdminUser] = useState<any>(null);
   const [token, setToken] = useState<string | null>(localStorage.getItem('bk_admin_token'));
@@ -21,7 +20,7 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'registrations' | 'tickets' | 'content' | 'logs' | 'courses' | 'admissions' | 'downloads' | 'books' | 'exams'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'registrations' | 'tickets' | 'content' | 'logs' | 'courses' | 'admissions' | 'downloads' | 'books'>('dashboard');
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState<any>(null);
   const [contentList, setContentList] = useState<any[]>([]);
@@ -33,7 +32,6 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
   const [tickets, setTickets] = useState<any[]>([]);
   const [enquiries, setEnquiries] = useState<any[]>([]);
   const [coursesList, setCoursesList] = useState<any[]>([]);
-  const [examsList, setExamsList] = useState<any[]>([]);
   const [courseForm, setCourseForm] = useState({ 
     title: '', 
     category: 'UPSC', 
@@ -41,10 +39,9 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
     instructor: '', 
     isFeatured: true, 
     image: null as File | null,
-    examDate: '',
     dynamicSections: [{ title: '', content: '' }]
   });
-  const [bookForm, setBookForm] = useState({ title: '', category: 'Book - UPSC', description: '', files: [] as File[] });
+  const [bookForm, setBookForm] = useState({ title: '', category: 'UPSC', description: '', files: [] as File[] });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [newTicketAlert, setNewTicketAlert] = useState<any>(null);
   const [editingBookId, setEditingBookId] = useState<string | null>(null);
@@ -60,30 +57,15 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
 
   // Auth Effect
   useEffect(() => {
-    // DIAGNOSTIC CONNECTION TEST
-    const testConn = async () => {
-      try {
-        const r = await fetch('/api/ping');
-        const d = await r.json();
-        console.log("API CONNECTION TEST:", d.message);
-      } catch (e) {
-        console.error("API CONNECTION FAILED:", e);
-      }
-    };
-    testConn();
-
     if (token) {
-      // Decode or verify token
       setIsAuthenticated(true);
-      setAdminUser({ username: 'Admin' });
-      fetchRegistrations();
-      fetchTickets();
       fetchDashboard();
+      fetchTickets();
+      fetchRegistrations();
       fetchAdmissions();
       fetchDownloads();
       fetchEnquiries();
       fetchCourses();
-      fetchExams();
       fetchBooks();
       const poll = setInterval(() => {
         fetchTickets();
@@ -368,71 +350,11 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
     } catch (err) { console.error('Fetch Courses Error:', err); }
   };
 
-  const fetchExams = async () => {
-    try {
-      const resp = await fetch('/api/content/exams');
-      const data = await resp.json();
-      if (data.success) setExamsList(data.items || []);
-    } catch (err) { console.error('Fetch Exams Error:', err); }
-  };
-
   const resetCourseForm = () => {
     setCourseForm({ 
-      title: '', category: 'UPSC', subCategory: '', instructor: '', isFeatured: true, image: null, examDate: '',
+      title: '', category: 'UPSC', subCategory: '', instructor: '', isFeatured: true, image: null,
       dynamicSections: [{ title: '', content: '' }]
     });
-  };
-
-
-  const [examForm, setExamForm] = useState({
-    category: 'UPSC Hub (IAS, IPS, IFS)',
-    fullDetails: '',
-    examDate: '',
-    image: null as File | null
-  });
-
-  const resetExamForm = () => {
-    setExamForm({ category: 'UPSC Hub (IAS, IPS, IFS)', fullDetails: '', examDate: '', image: null });
-  };
-
-  const handleAddExam = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const formData = new FormData();
-      formData.append('title', examForm.category);
-      formData.append('category', examForm.category);
-      // Use category as subCategory so it matches exactly what user clicked in frontend list
-      formData.append('subCategory', examForm.category); 
-      formData.append('instructor', 'Expert Faculty'); // Default
-      formData.append('isFeatured', 'true');
-      formData.append('dynamicSections', JSON.stringify([{ title: 'Complete Syllabus & Strategy', content: examForm.fullDetails }]));
-      if (examForm.examDate) {
-        formData.append('examDate', examForm.examDate);
-      }
-      
-      if (examForm.image) {
-        formData.append('image', examForm.image);
-      }
-
-      const resp = await fetch('/api/content/exams', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: formData
-      });
-      const data = await resp.json();
-      if (data.success) {
-        resetExamForm();
-        fetchExams();
-        alert("DATA ADDED TO PORTAL! New layer created. Previous data is preserved.");
-      } else {
-        alert("Failed to add exam: " + data.message);
-      }
-    } catch (err: any) {
-      alert("Error: " + err.message);
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleAddCourse = async (e: React.FormEvent) => {
@@ -446,17 +368,13 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
       formData.append('instructor', courseForm.instructor);
       formData.append('isFeatured', String(courseForm.isFeatured));
       formData.append('dynamicSections', JSON.stringify(courseForm.dynamicSections));
-      if (courseForm.examDate) {
-        formData.append('examDate', courseForm.examDate);
-      }
       
       if (courseForm.image) {
         formData.append('image', courseForm.image);
       }
 
       // Determine correct endpoint based on category
-      let endpoint = courseForm.category === 'UPSC' ? '/api/content/upsc_hub' : '/api/content/courses';
-      if (activeTab === 'exams') endpoint = '/api/content/exams';
+      const endpoint = courseForm.category === 'UPSC' ? '/api/content/upsc_hub' : '/api/content/courses';
 
       const resp = await fetch(endpoint, {
         method: 'POST',
@@ -468,9 +386,7 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
       const data = await resp.json();
       if (data.success) {
         resetCourseForm();
-        if (activeTab === 'exams') fetchExams();
-        else fetchCourses();
-        alert("DATA ADDED TO PORTAL! New layer created. Previous data is preserved.");
+        fetchCourses();
       } else {
         alert("Failed to add course: " + data.message);
       }
@@ -537,7 +453,7 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
         const data = await resp.json();
         if (data.success) {
           alert("Book updated successfully");
-          setBookForm({ title: '', category: 'Book - UPSC', description: '', files: [] });
+          setBookForm({ title: '', category: 'UPSC', description: '', files: [] });
           setEditingBookId(null);
           fetchBooks();
         } else {
@@ -572,7 +488,7 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
         
         alert(`Upload complete. Success: ${successCount}, Failed: ${failCount}`);
         if (successCount > 0) {
-          setBookForm({ title: '', category: 'Book - UPSC', description: '', files: [] });
+          setBookForm({ title: '', category: 'UPSC', description: '', files: [] });
           fetchBooks();
         }
       }
@@ -724,7 +640,7 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
         </head>
         <body>
           <div class="header">
-            <h1>BK CAREER ACADEMY</h1>
+            <h1><span style="color:#dc2626;">BK</span> CAREER ACADEMY</h1>
             <h3>OFFICIAL ADMISSION RECORD</h3>
             <div style="font-family: monospace; font-weight: bold; margin-top: 10px;">
               REG NO: ${a.registrationNo || '---'} | FORM NO: ${a.formNo || '---'}
@@ -756,8 +672,8 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
               <div><div class="label">Submission Date</div><div class="value">${new Date(a.createdAt).toLocaleString()}</div></div>
             </div>
           </div>
-          <div style="margin-top: 50px; text-align: center; color: #999; font-size: 10px;">
-            This is a computer-generated record from the BK Career Academy Admin Portal.
+          <div style="text-align: center; margin-top: 50px; text-align: center; color: #999; font-size: 10px;">
+            This is a computer-generated record from the <span style="color:#dc2626;">BK</span> Career Academy Admin Portal.
           </div>
         </body>
       </html>
@@ -818,7 +734,7 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
             {isMobileMenuOpen ? <X size={20} /> : <Layout size={20} />}
           </button>
           <div className="w-10 h-10 md:w-12 md:h-12 bg-brand border-4 border-ink flex items-center justify-center">
-             <span className="font-display font-black text-lg md:text-xl text-ink">BK</span>
+             <span className="font-display font-black text-lg md:text-xl text-red-600">BK</span>
           </div>
           <h1 className="text-sm md:text-xl font-display font-black uppercase tracking-tighter">Control Panel</h1>
         </div>
@@ -856,7 +772,6 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
             { id: 'tickets', icon: Ticket, label: 'Tickets' },
             { id: 'enquiries', icon: MessageSquare, label: 'Enquiries' },
             { id: 'courses', icon: GraduationCap, label: 'Courses' },
-            { id: 'exams', icon: Globe, label: 'Government Exams' },
             { id: 'books', icon: Book, label: 'Books' },
             { id: 'logs', icon: Activity, label: 'Audit Trail' }
           ].map(item => (
@@ -869,7 +784,6 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
                 if (item.id === 'tickets') fetchTickets(); 
                 if (item.id === 'enquiries') fetchEnquiries();
                 if (item.id === 'courses') fetchCourses();
-                if (item.id === 'exams') fetchExams();
                 if (item.id === 'books') fetchBooks();
             }} className={`flex items-center gap-4 p-6 border-b border-ink/5 ${activeTab === item.id ? 'bg-brand text-ink border-l-[12px] border-ink' : 'text-ink/40'}`}>
               <item.icon size={20} />
@@ -1332,27 +1246,11 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
                     />
                     <select 
                       required 
-                      value={bookForm.category.includes(' - ') ? bookForm.category.split(' - ')[0] : 'Book'} 
-                      onChange={e => {
-                        const currentCat = bookForm.category.includes(' - ') ? bookForm.category.split(' - ')[1] : 'UPSC';
-                        setBookForm({...bookForm, category: `${e.target.value} - ${currentCat}`});
-                      }} 
+                      value={bookForm.category} 
+                      onChange={e => setBookForm({...bookForm, category: e.target.value})} 
                       className="border-2 border-ink p-3 text-sm font-mono uppercase bg-white"
                     >
-                      <option value="Book">📕 Book</option>
-                      <option value="Question Paper">📝 Question Paper</option>
-                    </select>
-
-                    <select 
-                      required 
-                      value={bookForm.category.includes(' - ') ? bookForm.category.split(' - ')[1] : 'UPSC'} 
-                      onChange={e => {
-                        const currentType = bookForm.category.includes(' - ') ? bookForm.category.split(' - ')[0] : 'Book';
-                        setBookForm({...bookForm, category: `${currentType} - ${e.target.value}`});
-                      }} 
-                      className="border-2 border-ink p-3 text-sm font-mono uppercase bg-white"
-                    >
-                      {['UPSC', 'MPSC', 'Banking', 'Police Bharti', 'Railway Bharti', 'Staff Selection', 'State Board', 'CBSE Board', 'Other'].map(cat => (
+                      {['UPSC', 'MPSC', 'Banking', 'NDA', 'Police Bharti', 'Railway Bharti', 'Staff Selection', 'Other', 'Commerce', 'Science', 'State Board', 'CBSE Board', 'Question Papers'].map(cat => (
                         <option key={cat} value={cat}>{cat}</option>
                       ))}
                     </select>
@@ -1398,7 +1296,7 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
                           type="button"
                           onClick={() => {
                             setEditingBookId(null);
-                             setBookForm({ title: '', category: 'Book - UPSC', description: '', files: [] });
+                            setBookForm({ title: '', category: 'UPSC', description: '', file: null });
                           }}
                           className="bg-ink text-white font-bold uppercase border-2 border-ink px-6 py-3 hover:-translate-y-1 transition-all shadow-[4px_4px_0_0_#1A1A1A]"
                         >
@@ -1480,7 +1378,7 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
                       <div className="space-y-6">
                         <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase tracking-widest text-ink/40">Portal Identity</label>
-                          <input required type="text" value={courseForm.title} onChange={e => setCourseForm({...courseForm, title: e.target.value})} placeholder="e.g. UPSC Hub 2026" className="w-full border-4 border-ink p-4 font-mono bg-white focus:ring-8 focus:ring-brand/10 transition-all text-sm" />
+                          <input required type="text" value={courseForm.title} onChange={e => setCourseForm({...courseForm, title: e.target.value})} placeholder="e.g. UPSC Hub 2026" className="w-full border-4 border-ink p-4 font-mono uppercase bg-white focus:ring-8 focus:ring-brand/10 transition-all text-sm" />
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                           <div className="space-y-2">
@@ -1513,7 +1411,7 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
                         </div>
                         <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase tracking-widest text-ink/40">Assigned Team/Mentor</label>
-                          <input required type="text" value={courseForm.instructor} onChange={e => setCourseForm({...courseForm, instructor: e.target.value})} placeholder="e.g. Dr. Ghuge" className="w-full border-4 border-ink p-4 font-mono bg-white text-sm" />
+                          <input required type="text" value={courseForm.instructor} onChange={e => setCourseForm({...courseForm, instructor: e.target.value})} placeholder="e.g. Dr. Ghuge" className="w-full border-4 border-ink p-4 font-mono uppercase bg-white text-sm" />
                         </div>
                         <div className="border-4 border-ink p-6 bg-ink/5 flex items-center justify-between">
                           <div>
@@ -1529,44 +1427,6 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
                       </div>
                     </div>
 
-                    {/* EXAM DATE & TIME - Courses */}
-                    <div className="lg:col-span-2 p-8 border-4 border-ink bg-ink relative mt-4">
-                      <div className="absolute -top-4 left-6 bg-brand text-ink px-4 py-1 font-black uppercase text-[10px] border-2 border-ink shadow-[2px_2px_0_0_#000]">EXAM DATE & PAPER TIME (COUNTDOWN)</div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-white/60">Exam Date</label>
-                          <input 
-                            type="date"
-                            value={courseForm.examDate ? courseForm.examDate.split('T')[0] : ''}
-                            onChange={e => {
-                              const time = courseForm.examDate?.split('T')[1] || '09:00';
-                              setCourseForm({...courseForm, examDate: e.target.value + 'T' + time});
-                            }}
-                            className="w-full border-4 border-brand p-4 font-display font-bold text-xl bg-white text-ink focus:ring-8 focus:ring-brand/30 transition-all"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-white/60">Paper Start Time (Hour:Minute)</label>
-                          <input 
-                            type="time"
-                            value={courseForm.examDate ? (courseForm.examDate.split('T')[1] || '09:00') : '09:00'}
-                            onChange={e => {
-                              const date = courseForm.examDate?.split('T')[0] || new Date().toISOString().split('T')[0];
-                              setCourseForm({...courseForm, examDate: date + 'T' + e.target.value});
-                            }}
-                            className="w-full border-4 border-brand p-4 font-display font-bold text-xl bg-white text-ink focus:ring-8 focus:ring-brand/30 transition-all"
-                          />
-                        </div>
-                      </div>
-                      {courseForm.examDate && courseForm.examDate.includes('T') && (
-                        <div className="mt-4 p-3 bg-brand/10 border border-brand/30 rounded">
-                          <p className="text-brand font-mono text-[10px] uppercase tracking-widest">
-                            ✓ Countdown will show: {new Date(courseForm.examDate).toLocaleString('en-IN', { dateStyle: 'full', timeStyle: 'short' })}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
                     <div className="space-y-8">
                       <div className="bg-ink text-brand px-4 py-1 font-black uppercase text-[10px] w-fit border-2 border-ink shadow-[2px_2px_0_0_#F7931A]">Dynamic Modules</div>
                       <div className="space-y-4 max-h-[500px] overflow-y-auto pr-4 custom-scrollbar">
@@ -1576,8 +1436,8 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
                               <Trash2 size={14} />
                             </button>
                             <div className="space-y-4">
-                              <input type="text" value={sec.title} onChange={e => updateSection(idx, 'title', e.target.value)} placeholder="Module Title (e.g. Stage 1: Strategy)" className="w-full border-b-4 border-ink p-2 font-black text-xs focus:border-brand transition-colors bg-transparent outline-none" />
-                              <textarea value={sec.content} onChange={e => updateSection(idx, 'content', e.target.value)} placeholder="Strategic details for this module..." className="w-full h-24 bg-ink/[0.03] p-4 text-[10px] font-body focus:bg-white transition-all resize-none border-none outline-none" />
+                              <input type="text" value={sec.title} onChange={e => updateSection(idx, 'title', e.target.value)} placeholder="Module Title (e.g. Stage 1: Strategy)" className="w-full border-b-4 border-ink p-2 font-black uppercase text-xs focus:border-brand transition-colors bg-transparent outline-none" />
+                              <textarea value={sec.content} onChange={e => updateSection(idx, 'content', e.target.value)} placeholder="Strategic details for this module..." className="w-full h-24 bg-ink/[0.03] p-4 text-[10px] font-mono uppercase focus:bg-white transition-all resize-none border-none outline-none" />
                             </div>
                           </div>
                         ))}
@@ -1671,190 +1531,8 @@ export default function AdminPortal({ onBack, onUpdate }: AdminPortalProps) {
                 </div>
               </div>
             )}
-
-            {activeTab === 'exams' && (
-              <div className="space-y-12 pb-20">
-                <div className="bg-white border-8 border-ink p-10 shadow-[16px_16px_0_0_#1A1A1A]">
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 border-b-8 border-ink pb-6 gap-4">
-                    <div>
-                      <h3 className="text-4xl font-display font-black uppercase italic leading-none">Government Exam <span className="text-brand">Portal</span></h3>
-                      <p className="text-[10px] font-mono uppercase text-ink/40 mt-2">Simplified 3-Block Deployment System</p>
-                    </div>
-                    <button 
-                      type="button" 
-                      onClick={resetExamForm}
-                      className="px-6 py-2 bg-ink text-white font-black uppercase text-[10px] hover:bg-brand hover:text-ink transition-all shadow-[4px_4px_0_0_#F7931A]"
-                    >
-                      Reset Deployment
-                    </button>
-                  </div>
-
-                  <form onSubmit={handleAddExam} className="space-y-10">
-                    
-                    {/* BLOCK 1: CATEGORY & IMAGE */}
-                    <div className="p-8 border-4 border-ink bg-ink/5 relative group">
-                      <div className="absolute -top-4 left-6 bg-brand text-ink px-4 py-1 font-black uppercase text-[10px] border-2 border-ink shadow-[2px_2px_0_0_#000]">BLOCK 1: EXAM CATEGORY & IMAGE</div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-ink/60">Select Exam Category</label>
-                          <select value={examForm.category} onChange={e => setExamForm({...examForm, category: e.target.value})} className="w-full border-4 border-ink p-4 font-mono uppercase bg-white text-sm focus:ring-4 focus:ring-brand">
-                            {[
-                              'UPSC Hub (IAS, IPS, IFS)', 
-                              'MPSC (Maharashtra Services)',
-                              'SSC (Staff Selection Commission)',
-                              'Banking & Finance Exams',
-                              'Railway Exams (RRB)',
-                              'Defence Exams',
-                              'Teaching & Education Exams',
-                              'Insurance Exams',
-                              'Engineering & PSU Exams',
-                              'Law & Judiciary Exams',
-                              'Medical & Nursing Exams',
-                              'Police & Security Services',
-                              'Other Important Govt Exams'
-                            ].map(cat => (
-                              <option key={cat} value={cat}>{cat}</option>
-                            ))}
-                          </select>
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-ink/60">Upload Display Image</label>
-                          <input type="file" accept="image/*" onChange={e => { if(e.target.files && e.target.files[0]) setExamForm({...examForm, image: e.target.files[0]}) }} className="w-full border-4 border-ink p-3 font-mono bg-white text-xs file:mr-4 file:py-2 file:px-4 file:rounded-none file:border-2 file:border-ink file:bg-brand file:text-ink file:font-black file:uppercase file:text-[10px]" />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* EXAM DATE & TIME BLOCK */}
-                    <div className="p-8 border-4 border-ink bg-ink relative group">
-                      <div className="absolute -top-4 left-6 bg-brand text-ink px-4 py-1 font-black uppercase text-[10px] border-2 border-ink shadow-[2px_2px_0_0_#000]">EXAM DATE & PAPER TIME</div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-white/60">Exam Date</label>
-                          <input 
-                            type="date" 
-                            value={examForm.examDate ? examForm.examDate.split('T')[0] : ''}
-                            onChange={e => {
-                              const time = examForm.examDate?.split('T')[1] || '09:00';
-                              setExamForm({...examForm, examDate: e.target.value + 'T' + time});
-                            }}
-                            className="w-full border-4 border-brand p-4 font-display font-bold text-xl bg-white text-ink focus:ring-8 focus:ring-brand/30 transition-all"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-white/60">Paper Start Time (Hour:Minute)</label>
-                          <input 
-                            type="time" 
-                            value={examForm.examDate ? (examForm.examDate.split('T')[1] || '09:00') : '09:00'}
-                            onChange={e => {
-                              const date = examForm.examDate?.split('T')[0] || new Date().toISOString().split('T')[0];
-                              setExamForm({...examForm, examDate: date + 'T' + e.target.value});
-                            }}
-                            className="w-full border-4 border-brand p-4 font-display font-bold text-xl bg-white text-ink focus:ring-8 focus:ring-brand/30 transition-all"
-                          />
-                        </div>
-                      </div>
-                      {examForm.examDate && examForm.examDate.includes('T') && (
-                        <div className="mt-4 p-3 bg-brand/10 border border-brand/30 rounded">
-                          <p className="text-brand font-mono text-[10px] uppercase tracking-widest">
-                            ✓ Countdown will show: {new Date(examForm.examDate).toLocaleString('en-IN', { dateStyle: 'full', timeStyle: 'short' })}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* BLOCK 2: THE FULL */}
-                    <div className="p-8 border-4 border-ink bg-white relative group shadow-[8px_8px_0_0_#F7931A]">
-                      <div className="absolute -top-4 left-6 bg-[#000] text-[#F7931A] px-4 py-1 font-black uppercase text-[10px] border-2 border-ink shadow-[2px_2px_0_0_#F7931A]">BLOCK 2: THE FULL (SYLLABUS & DETAILS)</div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-ink/40">Full Strategy & Details</label>
-                        <textarea rows={8} value={examForm.fullDetails} onChange={e => setExamForm({...examForm, fullDetails: e.target.value})} placeholder="Write the complete syllabus, eligibility, and details here... (optional)" className="w-full border-4 border-ink p-6 font-body text-base bg-white focus:ring-8 focus:ring-ink/10 transition-all"></textarea>
-                      </div>
-                    </div>
-
-                    <div className="pt-6 border-t-8 border-ink flex justify-end">
-                      <button disabled={loading} type="submit" className="w-full md:w-auto bg-brand text-ink font-display font-black text-2xl uppercase tracking-wider py-6 px-16 shadow-[8px_8px_0_0_#1A1A1A] hover:shadow-none hover:translate-x-2 hover:translate-y-2 transition-all border-4 border-ink disabled:opacity-50">
-                        {loading ? 'DEPLOYING...' : 'DEPLOY EXAM DATA'}
-                      </button>
-                    </div>
-                  </form>
-                </div>
-
-                {/* Exams List Display */}
-                <div className="space-y-10">
-                  <div className="flex items-center gap-6">
-                    <div className="bg-ink text-brand px-12 py-4 font-black uppercase text-lg rounded-full shadow-[12px_12px_0_0_#F7931A] border-4 border-ink italic tracking-tighter">
-                      Published Government Exams
-                    </div>
-                    <div className="h-2 flex-grow bg-ink/10" />
-                  </div>
-                  {(() => {
-                    const ALL_CATEGORIES = [
-                      'UPSC Hub (IAS, IPS, IFS)', 
-                      'MPSC (Maharashtra Services)', 
-                      'SSC (Staff Selection Commission)', 
-                      'Banking & Finance Exams', 
-                      'Railway Exams (RRB)', 
-                      'Defence Exams', 
-                      'Teaching & Education Exams', 
-                      'Insurance Exams', 
-                      'Engineering & PSU Exams', 
-                      'Law & Judiciary Exams', 
-                      'Medical & Nursing Exams', 
-                      'Police & Security Services',
-                      'Other Important Govt Exams'
-                    ];
-                    return ALL_CATEGORIES.map(cat => {
-                      const catExams = examsList.filter(e => e.category === cat);
-                      return (
-                        <div key={cat} className="space-y-4">
-                          <div className="flex items-center gap-4">
-                            <div className={`px-6 py-2 font-black uppercase text-[10px] border-2 border-ink shadow-[3px_3px_0_0_#1A1A1A] italic tracking-widest ${catExams.length > 0 ? 'bg-brand text-ink' : 'bg-ink/10 text-ink/30'}`}>
-                              {cat}
-                            </div>
-                            <div className="h-[2px] flex-grow bg-ink/10" />
-                            {catExams.length > 0 && (
-                              <span className="text-[9px] font-mono font-bold text-brand bg-ink px-3 py-1">{catExams.length} DATA SET{catExams.length > 1 ? 'S' : ''} LIVE</span>
-                            )}
-                          </div>
-                          {catExams.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pl-4 border-l-4 border-brand/30">
-                              {catExams.map((exam) => (
-                                <div key={exam._id} className="bg-white border-4 border-ink p-5 hover:bg-ink group transition-all flex items-center gap-4 cursor-default">
-                                  <div className="w-12 h-12 bg-brand shrink-0 border-2 border-ink overflow-hidden shadow-[3px_3px_0_0_#000] group-hover:shadow-none transition-all">
-                                    <img src={exam.image || '/home/card1.png'} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
-                                  </div>
-                                  <div className="flex-grow min-w-0">
-                                    <h5 className="font-black text-[10px] leading-tight group-hover:text-white transition-colors">{exam.title}</h5>
-                                    <div className="flex items-center gap-2 mt-1">
-                                      <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                                      <p className="text-[8px] font-mono text-ink/30 group-hover:text-brand transition-colors uppercase">Layer added: {new Date(exam.createdAt).toLocaleDateString()} {new Date(exam.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                                    </div>
-                                  </div>
-                                  <button 
-                                    onClick={() => handleDeleteCourse(exam._id)} 
-                                    className="bg-red-50 text-red-600 p-2 border border-red-200 hover:bg-red-600 hover:text-white transition-all shadow-[2px_2px_0_0_rgba(220,38,38,0.2)]"
-                                    title="Remove this specific data layer"
-                                  >
-                                    <Trash2 size={16} />
-                                  </button>
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <div className="pl-4 border-l-4 border-ink/5 py-2 text-[9px] font-mono uppercase text-ink/20 tracking-widest">
-                              No data deployed yet — use the form above to add content
-                            </div>
-                          )}
-                        </div>
-                      );
-                    });
-                  })()}
-                </div>
-              </div>
-            )}
-
-          </main>
-        </div>
+        </main>
       </div>
-    );
-  }
+    </div>
+  );
+}

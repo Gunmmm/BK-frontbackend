@@ -48,68 +48,32 @@ export const MAHATETDetailsPage: React.FC<MAHATETDetailsPageProps> = ({
       exit={{ opacity: 0 }}
       className="min-h-screen bg-background relative selection:bg-brand selection:text-ink"
     >
-      {/* Premium Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-[100] px-4 sm:px-8 h-18 flex items-center justify-between bg-white border-b-4 border-ink shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
-        <motion.div 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="flex items-center gap-4 cursor-pointer"
-          onClick={() => setView('home')}
-        >
-          <BrandLogo className="w-10 h-10" />
-          <div className="flex flex-col">
-            <span className="text-xl font-display font-black uppercase text-ink leading-none">MAHA TET 2026 Hub</span>
-            <span className="text-[10px] font-mono text-brand font-bold uppercase tracking-widest mt-1">Maharashtra State Teacher Eligibility</span>
-          </div>
-        </motion.div>
-        
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => setIsRegistrationModalOpen(true)}
-            className="flex btn-brutalist bg-brand px-6 py-2 text-xs"
-          >
-            Inquiry
-          </button>
-          <button 
-            onClick={() => setIsAdmissionModalOpen(true)}
-            className="hidden sm:flex btn-brutalist bg-ink text-brand px-6 py-2 text-xs"
-          >
-            Apply Now
-          </button>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <header className="pt-32 pb-16 px-8 bg-ink relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 pointer-events-none"
-          style={{
-            backgroundImage: `radial-gradient(circle at 2px 2px, #FFC107 1px, transparent 0)`,
-            backgroundSize: '32px 32px'
-          }}
-        />
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-8">
+      {/* Simple Header */}
+      <header className="pt-20 pb-10 px-8 bg-white border-b border-gray-100">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
             <button 
               onClick={onBack}
-              className="group flex items-center gap-2 text-brand hover:translate-x-1 transition-transform"
+              className="flex items-center gap-2 text-ink/60 hover:text-brand transition-colors"
             >
-              <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-              <span className="text-xs font-mono uppercase tracking-[0.3em] font-black">Return to Courses</span>
+              <ArrowLeft size={16} />
+              <span className="text-[10px] font-bold uppercase tracking-widest">कोर्सेस वर परत जा</span>
             </button>
             
             <a 
               href="https://mahatet.in" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 bg-brand text-ink px-6 py-3 border-4 border-ink shadow-[4px_4px_0_0_#000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all text-xs font-black uppercase tracking-widest"
+              className="inline-flex items-center gap-2 bg-brand text-ink px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-brand/20 hover:scale-105 transition-all"
             >
-              <Globe size={16} /> Official TET Portal
+              <Globe size={14} /> अधिकृत भरती पोर्टल
             </a>
           </div>
-          <h1 className="text-4xl md:text-7xl font-display font-black text-white uppercase tracking-tighter leading-none mb-6 italic">
+          
+          <h1 className="text-4xl md:text-6xl font-display font-black text-ink uppercase tracking-tight leading-none italic">
             MAHA <span className="text-brand">TET</span> 2026
           </h1>
-          <p className="text-white/60 text-lg md:text-xl font-body max-w-3xl leading-relaxed">
+          <p className="mt-4 text-muted text-base md:text-lg max-w-2xl font-body">
             'महाराष्ट्र शिक्षक पात्रता परीक्षा' (MAHA TET) ही एक राज्यस्तरीय परीक्षा आहे, जी महाराष्ट्रातील शाळांमध्ये इयत्ता १ ली ते ८ वी पर्यंतच्या अध्यापन पदांसाठी उमेदवारांची पात्रता निश्चित करते.
           </p>
         </div>
@@ -465,7 +429,7 @@ export const MAHATETDetailsPage: React.FC<MAHATETDetailsPageProps> = ({
                ))}
              </div>
              <p className="mt-8 text-sm font-bold text-ink leading-relaxed max-w-4xl">
-               MAHA TET परीक्षेची पुस्तके अभ्यासक्रमाचा सखोल आढावा घेतात. यामध्ये समाविष्ट असलेले 'सराव संच' (Practice Sets) आणि 'नमुना प्रश्नपत्रिका' (Sample Papers) उमेदवारांना मूल्यांकनासाठी उपयुक्त ठरतात. सर्वोत्तम तयारीसाठी 'BK Career Academy' संदर्भांचा वापर करा.
+               MAHA TET परीक्षेची पुस्तके अभ्यासक्रमाचा सखोल आढावा घेतात. यामध्ये समाविष्ट असलेले 'सराव संच' (Practice Sets) आणि 'नमुना प्रश्नपत्रिका' (Sample Papers) उमेदवारांना मूल्यांकनासाठी उपयुक्त ठरतात. सर्वोत्तम तयारीसाठी '<span className="text-red-600">BK</span> Career Academy' संदर्भांचा वापर करा.
              </p>
           </section>
 
@@ -476,7 +440,7 @@ export const MAHATETDetailsPage: React.FC<MAHATETDetailsPageProps> = ({
       <section className="bg-ink py-24 px-8 text-center border-t-8 border-brand">
          <div className="max-w-4xl mx-auto">
             <h2 className="text-4xl md:text-6xl font-display font-black text-white uppercase mb-8">
-              Join the <span className="text-brand">BK Career Academy</span> TET Force Batch
+              Join the <span className="text-red-600">BK</span> <span className="text-brand">Career Academy</span> TET Force Batch
             </h2>
             <div className="flex flex-col sm:flex-row justify-center gap-6">
                <button onClick={onRegister} className="btn-brutalist bg-brand px-12 py-5 text-lg">

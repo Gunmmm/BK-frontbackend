@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Star, Send } from 'lucide-react';
+import FormLayout from './common/FormLayout';
 
 interface AddStoryModalProps {
   isOpen: boolean;
@@ -49,12 +50,8 @@ export default function AddStoryModal({ isOpen, onClose, onAdd }: AddStoryModalP
               <X size={20} strokeWidth={3} />
             </button>
 
-            <div className="mb-6">
-              <h2 className="text-2xl font-display font-black text-ink uppercase tracking-tighter">Share Your Story</h2>
-              <div className="w-10 h-1 bg-brand mt-1" />
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <FormLayout title="Share Your Story">
+              <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <label className="font-mono text-[10px] uppercase tracking-widest font-black text-muted">Your Rating</label>
                 <div className="flex gap-1 overflow-visible">
@@ -120,7 +117,8 @@ export default function AddStoryModal({ isOpen, onClose, onAdd }: AddStoryModalP
                 Submit Story <Send size={16} />
               </button>
             </form>
-          </motion.div>
+          </FormLayout>
+        </motion.div>
         </div>
       )}
     </AnimatePresence>

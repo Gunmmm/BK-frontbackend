@@ -1,171 +1,178 @@
-import React, { useRef, useState, useEffect } from "react";
-import { motion, useScroll, useTransform, AnimatePresence } from "motion/react";
-import { ArrowRight, User, GraduationCap, ChevronLeft, ChevronRight } from "lucide-react";
+import React, { Suspense, useEffect, useState } from "react";
+import { motion, useMotionValue, useTransform, animate, AnimatePresence } from "framer-motion";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Float, Sphere, MeshDistortMaterial, PerspectiveCamera } from "@react-three/drei";
+import { ArrowRight, Play, Users, BookOpen, Award, CheckCircle2 } from "lucide-react";
+import StudentSuccessShorts from "./StudentSuccessShorts";
+import ExamAnimation3D from "./ExamAnimation3D";
+
 
 interface HomeHeroProps {
   setView: (view: string) => void;
-  setSelectedCategory: (category: any) => void;
   onRegistration: () => void;
-  onAdmission: () => void;
 }
 
-const carouselImages = [
-  "/home/banner1.png",
-  "/home/banner2.png",
-  "/home/banner3.png",
-  "/home/banner4.png"
-];
+// 3D Animated Object Component - Light Version
+const AnimatedShape = () => {
+  return (
+    <Float speed={2} rotationIntensity={1.5} floatIntensity={2}>
+      <Sphere args={[1, 100, 100]} scale={1.4}>
+        <MeshDistortMaterial
+          color="#4F9CF9"
+          attach="material"
+          distort={0.4}
+          speed={1.5}
+          roughness={0.4}
+          metalness={0.1}
+        />
+      </Sphere>
+    </Float>
+  );
+};
 
-export const HomeHero: React.FC<HomeHeroProps> = ({ setView, setSelectedCategory, onRegistration, onAdmission }) => {
-  const heroRef = useRef(null);
-  const [currentSlide, setCurrentSlide] = useState(0);
+// CountUp Component
+const CountUp = ({ value, suffix = "" }: { value: number; suffix?: string }) => {
+  const count = useMotionValue(0);
+  const rounded = useTransform(count, (latest) => Math.round(latest).toLocaleString() + suffix);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
-    }, 4000); // Slightly slower for better experience
-    return () => clearInterval(timer);
-  }, []);
+    const controls = animate(count, value, { duration: 2, ease: "easeOut" });
+    return controls.stop;
+  }, [value]);
 
-  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
-  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + carouselImages.length) % carouselImages.length);
+  return <motion.span>{rounded}</motion.span>;
+};
 
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"]
-  });
-
-  const y1 = useTransform(scrollYProgress, [0, 1], [0, 200]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-
+export const HomeHero: React.FC<HomeHeroProps> = ({ setView, onRegistration }) => {
   return (
-    <section ref={heroRef} className="relative h-[300px] md:h-[350px] lg:h-[400px] flex flex-col items-center justify-center px-6 pt-14 pb-10 text-center overflow-hidden bg-ink">
-      {/* Carousel Background */}
-      <div className="absolute inset-0 z-0">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentSlide}
-            initial={{ opacity: 0, scale: 1.1 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 1.2, ease: "easeOut" }}
-            className="absolute inset-0"
-          >
-            <img 
-              src={carouselImages[currentSlide]} 
-              alt={`${['UPSC & MPSC Success', 'Banking & SSC Preparation', 'Police Bharti Training', 'Civil Services Strategy'][currentSlide]} - BK Career Academy Nashik Banner`} 
-              className="w-full h-full object-contain"
-            />
-            {/* Subtle Overlay for readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-ink/40 via-transparent to-ink/20" />
-          </motion.div>
-        </AnimatePresence>
+    <section className="relative min-h-0 w-full flex items-start justify-center bg-gradient-to-br from-white via-[#F8FAFC] to-[#EEF2FF] pt-8 md:pt-12 pb-0">
+      {/* Soft Background Blobs */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <motion.div 
+          animate={{ 
+            x: [0, 50, 0],
+            y: [0, 30, 0],
+            scale: [1, 1.1, 1]
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-[#4F9CF9]/5 rounded-full blur-[120px]" 
+        />
+        <motion.div 
+          animate={{ 
+            x: [0, -50, 0],
+            y: [0, -30, 0],
+            scale: [1, 1.2, 1]
+          }}
+          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+          className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[40%] bg-[#FDE047]/5 rounded-full blur-[120px]" 
+        />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] bg-[#FDBA74]/3 rounded-full blur-[150px]" />
+      </div>
+      
+      {/* Sanskrit Shloka at the top center */}
+      <div className="absolute top-2 md:top-4 left-0 w-full flex justify-center z-20">
+        <motion.p 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-red-400 text-[10px] md:text-sm tracking-[0.2em] md:tracking-widest font-bold text-center px-4"
+        >
+          | नहि ज्ञानेन सदृशं पवित्रमिह विद्यते |
+        </motion.p>
       </div>
 
-      {/* Navigation Arrows */}
-      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-4 sm:px-8 z-30 pointer-events-none">
-        <button 
-          onClick={prevSlide}
-          className="w-12 h-12 border-4 border-white bg-brand text-ink flex items-center justify-center hover:bg-white transition-all shadow-[4px_4px_0_0_#FFFFFF] active:translate-x-1 active:translate-y-1 active:shadow-none pointer-events-auto group"
-          aria-label="Previous slide"
+      <div className="max-w-[1400px] mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center relative z-10 pt-6 md:pt-20 pb-12">
+        
+        {/* Left Side: Content */}
+        <motion.div 
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="flex flex-col items-start lg:items-start text-left lg:text-left space-y-4 md:border-none border-2 border-brand/20 bg-white/40 backdrop-blur-md p-8 rounded-[2.5rem] shadow-xl md:p-0 md:bg-transparent md:backdrop-blur-none md:shadow-none md:rounded-none"
         >
-          <ChevronLeft size={32} className="group-hover:scale-110 transition-transform stroke-[3px]" />
-        </button>
-        <button 
-          onClick={nextSlide}
-          className="w-12 h-12 border-4 border-white bg-brand text-ink flex items-center justify-center hover:bg-white transition-all shadow-[4px_4px_0_0_#FFFFFF] active:translate-x-1 active:translate-y-1 active:shadow-none pointer-events-auto group"
-          aria-label="Next slide"
-        >
-          <ChevronRight size={32} className="group-hover:scale-110 transition-transform stroke-[3px]" />
-        </button>
-      </div>
+          <div className="space-y-2 w-full flex flex-col items-start lg:items-start">
+            <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-white/40 backdrop-blur-md border border-white/50 text-blue-600 font-bold text-xs mb-4 md:mb-8 shadow-sm tracking-widest uppercase">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+              </span>
+              Since 2009
+            </div>
+            <div className="w-full md:pl-0 lg:pl-20 pt-4 flex justify-start lg:justify-start">
+              <ExamAnimation3D />
+            </div>
+          </div>
 
-      <motion.div 
-        style={{ y: y1, opacity }}
-        className="max-w-7xl z-10 relative"
-      >
-        <div className="relative z-20 flex flex-col items-center justify-center">
-           
-           
-          
-          {/* <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 1 }}
-            className="text-xl md:text-3xl text-white font-bold mb-16 max-w-3xl mx-auto uppercase tracking-tighter drop-shadow-lg"
-          >
-            You don't need daily motivation—you need daily <span className="text-white decoration-brand underline decoration-4 underline-offset-8">discipline</span>, because discipline builds your future
-          </motion.p> */}
-
-          {/* <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-6"
-          >
-            <motion.button    
+          <div className="flex flex-col sm:flex-row gap-4 pt-8 md:pt-16 w-full justify-start lg:justify-start">
+            <motion.button
               whileHover={{ 
                 scale: 1.05, 
-                rotate: -1,
-                x: -4, 
-                y: -4, 
-                boxShadow: "10px 10px 0px 0px #FFFFFF" 
+                boxShadow: "0 20px 40px -10px rgba(79, 156, 249, 0.5)",
+                y: -5
               }}
-              whileTap={{ scale: 0.98, x: 0, y: 0, boxShadow: "0px 0px 0px 0px #FFFFFF" }}
-              onClick={() => setView('courses')}
-              className="bg-brand text-ink font-display font-black text-xs uppercase px-8 py-4 border-4 border-white shadow-[4px_4px_0_0_#FFFFFF] transition-colors flex flex-col items-center justify-center gap-2 group relative overflow-hidden min-w-[260px]"
+              whileTap={{ scale: 0.95 }}
+              onClick={onRegistration}
+              className="px-8 md:px-14 py-4 bg-gradient-to-r from-[#4F9CF9] to-[#FDE047] text-white font-black rounded-full text-sm flex items-center justify-center gap-3 group shadow-xl transition-all whitespace-nowrap w-full sm:w-auto"
             >
-              <motion.div
-                animate={{ scale: [1, 1.1, 1] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <motion.div
-                  animate={{ rotate: [0, 8, -8, 0] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                >
-                  <User size={32} className="relative z-10 stroke-[3px]" />
-                </motion.div>
-              </motion.div> */}
-              {/* <span className="relative z-10 text-base tracking-widest font-black uppercase">Explore the Government exam</span>
-              <motion.div 
-                className="absolute inset-0 bg-white/30 -skew-x-12 -translate-x-full group-hover:translate-x-[200%] transition-transform duration-1000"
-              /> */}
-            {/* </motion.button>
-          </motion.div> */}
-        </div>
-      </motion.div>
+              Get Started for Free
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </motion.button>
 
+            <motion.button
+              whileHover={{ 
+                scale: 1.05, 
+                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                y: -5 
+              }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => window.open("https://youtube.com/@bkcareeracademy2025?si=_npQzmvWFI65nHG9", "_blank")}
+              className="px-8 md:px-14 py-4 bg-white/20 backdrop-blur-md border border-white/30 text-gray-700 font-bold rounded-full text-sm flex items-center justify-center gap-3 shadow-lg whitespace-nowrap w-full sm:w-auto"
+            >
+              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white shrink-0">
+                <Play className="w-4 h-4 fill-current ml-0.5" />
+              </div>
+              Watch Video Lectures
+            </motion.button>
+          </div>
+        </motion.div>
 
+        {/* Right Side: Student Success Column - Visible on all screens now */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1, delay: 0.4 }}
+          className="relative w-full flex items-center justify-center lg:justify-end pt-8 lg:pt-0 lg:-mt-10"
+        >
+          <div className="w-full max-w-[280px] md:max-w-[320px] relative z-10">
+            {/* Smooth Background Glow for Video */}
+            <div className="absolute inset-0 bg-blue-400/20 blur-[60px] md:blur-[80px] rounded-full -z-10 animate-pulse" />
+            <div className="absolute -inset-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-[30px] md:rounded-[40px] -z-10 shadow-2xl" />
+            
+            <StudentSuccessShorts />
+          </div>
+        </motion.div>
 
-      {/* Slide Indicators */}
-      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-4 z-20">
-        {carouselImages.map((_, idx) => (
-          <button
-            key={idx}
-            onClick={() => setCurrentSlide(idx)}
-            className={`h-2 transition-all duration-500 border-2 border-white ${currentSlide === idx ? 'w-12 bg-brand border-brand' : 'w-4 bg-transparent hover:bg-white/30'}`}
-            aria-label={`Go to slide ${idx + 1}`}
-          />
-        ))}
       </div>
 
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.2, duration: 1 }}
-        className="absolute bottom-12 left-12 flex flex-col items-start gap-4 text-white font-black uppercase tracking-[0.2em] text-xs z-20"
-      >
-        <span>0{currentSlide + 1} / 0{carouselImages.length}</span>
-        <div className="w-16 h-1 bg-brand relative overflow-hidden">
-          <motion.div 
-            key={currentSlide}
-            initial={{ x: "-100%" }}
-            animate={{ x: "0%" }}
-            transition={{ duration: 3, ease: "linear" }}
-            className="absolute inset-0 bg-white"
-          />
-        </div>
-      </motion.div>
+      {/* Floating Particles/Dots */}
+      {[...Array(5)].map((_, i) => (
+        <motion.div
+          key={i}
+          animate={{
+            y: [0, -100, 0],
+            opacity: [0, 0.5, 0],
+          }}
+          transition={{
+            duration: 10 + i * 2,
+            repeat: Infinity,
+            delay: i * 3,
+          }}
+          className="absolute w-2 h-2 bg-[#4F9CF9]/20 rounded-full blur-[1px]"
+          style={{
+            left: `${10 + i * 20}%`,
+            top: `${20 + i * 15}%`,
+          }}
+        />
+      ))}
     </section>
   );
 };

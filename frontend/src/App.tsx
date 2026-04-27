@@ -12,6 +12,7 @@ import LeadLogin from './components/LeadLogin';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
+import { ScrollToTop } from './components/common/ScrollToTop';
 
 // Pages
 import { Home } from './pages/Home';
@@ -23,8 +24,8 @@ import { PoliceDetailsPage } from './pages/PoliceDetailsPage';
 import { MAHATETDetailsPage } from './pages/MAHATETDetailsPage';
 import { SuccessStoriesPage } from './pages/SuccessStoriesPage';
 import { AboutUs } from './pages/AboutUs';
-import { DynamicExamDetailsPage } from './pages/DynamicExamDetailsPage';
 import AddStoryModal from './components/AddStoryModal';
+import { LegalPage } from './pages/LegalPage';
 import { INITIAL_STORIES, Story } from './data/stories';
 
 // Data
@@ -32,30 +33,9 @@ import { EXAM_CATEGORIES } from './data/constants';
 
 export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [view, setView] = useState<'home' | 'courses' | 'syllabus' | 'about' | 'adminLogin' | 'courseDetailMPSC' | 'courseDetailPolice' | 'courseDetailMAHATET' | 'successStories' | 'dynamicExamDetail'>('home');
-
-  // URL Path Routing for Admin Portal
-  useEffect(() => {
-    const path = window.location.pathname;
-    if (path === '/admin-portal') {
-      setView('adminLogin');
-    }
-  }, []);
-
-  // Update URL when view changes (simple history management)
-  useEffect(() => {
-    if (view === 'adminLogin') {
-      if (window.location.pathname !== '/admin-portal') {
-        window.history.pushState({}, '', '/admin-portal');
-      }
-    } else if (window.location.pathname === '/admin-portal') {
-      window.history.pushState({}, '', '/');
-    }
-  }, [view]);
-
+  const [view, setView] = useState<'home' | 'courses' | 'syllabus' | 'about' | 'adminLogin' | 'courseDetailMPSC' | 'courseDetailPolice' | 'courseDetailMAHATET' | 'successStories' | 'csrPolicy' | 'privacyPolicy' | 'refundRules' | 'termsConditions'>('home');
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [selectedSyllabusId, setSelectedSyllabusId] = useState<number | null>(null);
-  const [selectedExamName, setSelectedExamName] = useState<string>('');
   const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
   const [isAdmissionModalOpen, setIsAdmissionModalOpen] = useState(false);
   const [isAddStoryModalOpen, setIsAddStoryModalOpen] = useState(false);
@@ -98,59 +78,25 @@ export default function App() {
 
   const [showMandatoryLogin, setShowMandatoryLogin] = useState(false);
   const [dynamicCourses, setDynamicCourses] = useState<any[]>([]);
-  const [dynamicExams, setDynamicExams] = useState<any[]>([]);
-  const [quickAccessList, setQuickAccessList] = useState<any[]>([]);
 
   const fetchAllContent = async () => {
     try {
-      const endpoints = [
-        '/api/content/courses',
-        '/api/content/upsc_hub',
-        '/api/content/quick_exam_access',
-        '/api/content/exams'
-      ];
+      const [coursesResp, upscResp] = await Promise.all([
+        fetch('/api/content/courses'),
+        fetch('/api/content/upsc_hub')
+      ]);
+      const [coursesData, upscData] = await Promise.all([
+        coursesResp.json(),
+        upscResp.json()
+      ]);
       
-      const responses = await Promise.all(endpoints.map(url => fetch(url)));
-      const dataResults = await Promise.all(responses.map(async (res, idx) => {
-        if (!res.ok) {
-          console.error(`Fetch failed for ${endpoints[idx]}: ${res.status}`);
-          return { items: [] };
-        }
-        try {
-          return await res.json();
-        } catch (e) {
-          console.error(`JSON parse failed for ${endpoints[idx]}`);
-          return { items: [] };
-        }
-      }));
-
-      const [coursesData, upscData, quickData, examsData] = dataResults;
-      
-      // Process Courses (strictly from courses and upsc_hub sections)
-      const courses = [
-        ...(coursesData.items || []), 
-        ...(upscData.items || [])
-      ].filter(item => item.section !== 'exams') // Explicit filter
-      .map(item => ({
+      const combined = [...(coursesData.items || []), ...(upscData.items || [])].map(item => ({
         ...item,
-        id: item._id, 
-        image: item.image || '/home/card1.png',
+        id: item._id, // Ensure id exists for components expecting it
+        image: item.image || '/home/card1.png', // Fallback image
         isNew: true
       }));
-
-      // Process Exams (strictly from exams section)
-      const exams = (examsData.items || [])
-        .filter(item => item.section === 'exams') // Explicit filter
-        .map(item => ({
-        ...item,
-        id: item._id,
-        image: item.image || '/home/card1.png',
-        isNew: true
-      }));
-      
-      setDynamicCourses(courses);
-      setDynamicExams(exams);
-      setQuickAccessList(quickData.items || []);
+      setDynamicCourses(combined);
     } catch (err) {
       console.error("Failed to fetch dynamic content:", err);
     }
@@ -193,6 +139,22 @@ export default function App() {
       successStories: {
         title: "Success Stories | Real Results from Our Students",
         description: "Read inspiring stories from our successful candidates who cracked UPSC, MPSC, and Banking exams with BK Career Academy."
+      },
+      csrPolicy: {
+        title: "CSR Policy | BK Career Academy",
+        description: "Our commitment to education equity and community welfare."
+      },
+      privacyPolicy: {
+        title: "Privacy Policy | BK Career Academy",
+        description: "How we protect and manage your personal information."
+      },
+      refundRules: {
+        title: "Refund Rules | BK Career Academy",
+        description: "Terms regarding course fee refunds and cancellations."
+      },
+      termsConditions: {
+        title: "Terms & Conditions | BK Career Academy",
+        description: "Standard operating procedures and student conduct guidelines."
       }
     };
 
@@ -225,7 +187,7 @@ export default function App() {
         </AnimatePresence>
 
         {view === 'adminLogin' ? (
-          <AdminPortal onBack={() => setView('home')} onUpdate={fetchAllContent} />
+          <AdminPortal onBack={() => setView('home')} />
         ) : (
           <>
             <Navbar 
@@ -239,7 +201,7 @@ export default function App() {
               setIsMenuOpen={setIsMenuOpen}
             />
 
-            <main className="pl-0 md:pl-52 relative min-h-screen">
+            <main className="pt-14 md:pt-0 pl-0 md:pl-52 relative min-h-screen">
               <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.05]" 
                 style={{
                   backgroundImage: `linear-gradient(#1A1A1A 1px, transparent 1px), linear-gradient(90deg, #1A1A1A 1px, transparent 1px)`,
@@ -250,24 +212,18 @@ export default function App() {
                 <AnimatePresence mode="wait">
                   {view === 'home' && (
                     <Home 
-                      setView={setView} 
-                      setSelectedCategory={setSelectedCategory} 
+                      setView={setView}
+                      setSelectedCategory={setSelectedCategory}
                       setIsRegistrationModalOpen={setIsRegistrationModalOpen}
                       setIsAdmissionModalOpen={setIsAdmissionModalOpen}
                       setIsAddStoryModalOpen={setIsAddStoryModalOpen}
                       dynamicCourses={dynamicCourses}
-                      dynamicExams={dynamicExams}
-                      stories={stories.slice(0, 2)}
-                      setSelectedExamName={setSelectedExamName}
-                      quickAccessList={quickAccessList}
                     />
                   )}
                   {view === 'courses' && (
                     <Courses 
                       selectedCategory={selectedCategory}
                       activeNavCategory={EXAM_CATEGORIES[0].id}
-                      dynamicCourses={dynamicCourses}
-                      dynamicExams={dynamicExams}
                       onViewSyllabus={(id) => {
                         setSelectedSyllabusId(id);
                         if (id === 1) {
@@ -280,10 +236,6 @@ export default function App() {
                       onViewMPSC={() => setView('courseDetailMPSC')}
                       onViewPolice={() => setView('courseDetailPolice')}
                       onViewMAHATET={() => setView('courseDetailMAHATET')}
-                      onViewDynamicExam={(examName) => {
-                        setSelectedExamName(examName);
-                        setView('dynamicExamDetail');
-                      }}
                       onRegister={() => setIsRegistrationModalOpen(true)}
                       onSelectCategory={setSelectedCategory}
                     />
@@ -328,13 +280,6 @@ export default function App() {
                       setIsAdmissionModalOpen={setIsAdmissionModalOpen}
                     />
                   )}
-                  {view === 'dynamicExamDetail' && (
-                    <DynamicExamDetailsPage 
-                      examName={selectedExamName}
-                      onBack={() => setView('courses')}
-                      onRegister={() => setIsRegistrationModalOpen(true)}
-                    />
-                  )}
                   {view === 'about' && (
                     <AboutUs />
                   )}
@@ -344,6 +289,18 @@ export default function App() {
                       onBack={() => setView('home')} 
                       onAddYours={() => setIsAddStoryModalOpen(true)}
                     />
+                  )}
+                  {view === 'csrPolicy' && (
+                    <LegalPage type="csr" onBack={() => setView('home')} />
+                  )}
+                  {view === 'privacyPolicy' && (
+                    <LegalPage type="privacy" onBack={() => setView('home')} />
+                  )}
+                  {view === 'refundRules' && (
+                    <LegalPage type="refund" onBack={() => setView('home')} />
+                  )}
+                  {view === 'termsConditions' && (
+                    <LegalPage type="terms" onBack={() => setView('home')} />
                   )}
                 </AnimatePresence>
 
@@ -373,6 +330,8 @@ export default function App() {
             <div onClickCapture={(e) => { if(isGuest) { e.stopPropagation(); setShowMandatoryLogin(true); } }}>
               <ChatWidget />
             </div>
+
+            <ScrollToTop />
           </>
         )}
       </div>

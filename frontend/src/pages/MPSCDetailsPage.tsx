@@ -61,64 +61,33 @@ export const MPSCDetailsPage: React.FC<MPSCDetailsPageProps> = ({
       exit={{ opacity: 0 }}
       className="min-h-screen bg-background relative selection:bg-brand selection:text-ink scroll-smooth"
     >
-      {/* Premium Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-[100] px-4 sm:px-8 h-18 flex items-center justify-between bg-white border-b-4 border-ink shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
-        <motion.div 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="flex items-center gap-4 cursor-pointer"
-          onClick={() => setView('home')}
-        >
-          <BrandLogo className="w-10 h-10" />
-          <div className="flex flex-col">
-            <span className="text-xl font-display font-black uppercase text-ink leading-none">MPSC Hub</span>
-            <span className="text-[10px] font-mono text-brand font-bold uppercase tracking-widest mt-1">Academic Portal</span>
+      {/* Simple Header */}
+      <header className="pt-20 pb-10 px-8 bg-white border-b border-gray-100">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+            <button 
+              onClick={onBack}
+              className="flex items-center gap-2 text-ink/60 hover:text-brand transition-colors"
+            >
+              <ArrowLeft size={16} />
+              <span className="text-[10px] font-bold uppercase tracking-widest">कोर्सेस वर परत जा</span>
+            </button>
+            
+            <a 
+              href="https://mpsc.gov.in" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-brand text-ink px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-brand/20 hover:scale-105 transition-all"
+            >
+              <Globe size={14} /> अधिकृत भरती पोर्टल
+            </a>
           </div>
-        </motion.div>
-        
-        <div className="hidden md:flex items-center gap-8 mr-8">
-           <button onClick={() => scrollToSection('group-b')} className="text-[10px] font-black uppercase tracking-widest hover:text-brand transition-colors">गट ब (Group B)</button>
-           <button onClick={() => scrollToSection('group-c')} className="text-[10px] font-black uppercase tracking-widest hover:text-brand transition-colors">गट क (Group C)</button>
-           <button onClick={() => scrollToSection('syllabus')} className="text-[10px] font-black uppercase tracking-widest hover:text-brand transition-colors">अभ्यासक्रम</button>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => setIsRegistrationModalOpen(true)}
-            className="flex btn-brutalist bg-brand px-6 py-2 text-xs"
-          >
-            Inquiry
-          </button>
-          <button 
-            onClick={() => setIsAdmissionModalOpen(true)}
-            className="hidden sm:flex btn-brutalist bg-ink text-brand px-6 py-2 text-xs"
-          >
-            Apply Now
-          </button>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <header className="pt-32 pb-16 px-8 bg-ink relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 pointer-events-none"
-          style={{
-            backgroundImage: `radial-gradient(circle at 2px 2px, #FFC107 1px, transparent 0)`,
-            backgroundSize: '32px 32px'
-          }}
-        />
-        <div className="max-w-7xl mx-auto relative z-10">
-          <button 
-            onClick={onBack}
-            className="group flex items-center gap-2 text-brand mb-8 hover:translate-x-1 transition-transform"
-          >
-            <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-            <span className="text-xs font-mono uppercase tracking-[0.3em] font-black">Return to Courses</span>
-          </button>
-          <h1 className="text-4xl md:text-7xl font-display font-black text-white uppercase tracking-tighter leading-none mb-6">
-            Maharashtra <span className="text-brand">Combined</span> Services
+          
+          <h1 className="text-4xl md:text-6xl font-display font-black text-ink uppercase tracking-tight leading-none">
+            महाराष्ट्र <span className="text-brand">संयुक्त</span> सेवा
           </h1>
-          <p className="text-white/60 text-lg md:text-xl font-body max-w-3xl leading-relaxed">
-            Detailed orientation for MPSC Group B and Group C recruitment — Your strategic roadmap to administrative excellence in Maharashtra.
+          <p className="mt-4 text-muted text-base md:text-lg max-w-2xl font-body">
+            MPSC गट ब आणि गट क भरतीसाठी सविस्तर मार्गदर्शन — महाराष्ट्रातील प्रशासकीय सेवेतील यशस्वी प्रवासासाठी तुमचा मार्गदर्शक आराखडा.
           </p>
         </div>
       </header>

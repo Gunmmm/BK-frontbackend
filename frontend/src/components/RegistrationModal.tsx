@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, ChevronDown, Star } from 'lucide-react';
 import { EXAM_CATEGORIES } from '../data/constants';
+import FormLayout from './common/FormLayout';
 
 type InquiryFormData = {
   name: string;
@@ -55,9 +56,11 @@ export default function RegistrationModal({
   const allSubExams = getSubExams();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    let { name, value } = e.target;
+    const { name, value } = e.target;
     if (name === 'phone') {
-      value = value.replace(/\D/g, '').slice(0, 10);
+      const numericValue = value.replace(/\D/g, '').slice(0, 10);
+      setFormData((prev) => ({ ...prev, [name]: numericValue }));
+      return;
     }
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -131,14 +134,8 @@ export default function RegistrationModal({
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
                 >
-                  <div className="text-center mb-6">
-                    <h2 className="text-3xl font-display font-black text-ink mb-1 uppercase tracking-tighter">Inquiry Form</h2>
-                    <div className="text-brand text-sm font-mono font-bold tracking-widest mb-2 uppercase">Jay Hind</div>
-                    <div className="w-16 h-1 bg-brand mx-auto mb-3" />
-                    <p className="text-xs font-body text-muted italic">Share your details and our team will call you back.</p>
-                  </div>
-
-                  <form className="space-y-3" onSubmit={handleSubmit}>
+                  <FormLayout title="Inquiry Form">
+                    <form className="space-y-3" onSubmit={handleSubmit}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div className="space-y-2">
                         <label className="font-mono text-[10px] uppercase tracking-widest font-medium text-muted">Full Name</label>
@@ -252,48 +249,51 @@ export default function RegistrationModal({
                       {isSubmitting ? 'Submitting...' : 'Submit Inquiry'}
                     </button>
                   </form>
+                  </FormLayout>
                 </motion.div>
               ) : (
                 <motion.div
                   key="success"
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="text-center py-12"
                 >
-                  <div className="w-20 h-20 bg-brand flex items-center justify-center mx-auto mb-8">
-                    <Star size={32} className="text-ink" fill="currentColor" />
-                  </div>
-                  <h2 className="text-4xl font-display font-black text-ink mb-4 uppercase">Inquiry Submitted!</h2>
-                  <h3 className="text-xl text-brand font-mono uppercase tracking-wider mb-2">Jay Hind</h3>
-                  <div className="mb-8 p-6 bg-background border-2 border-ink/10 inline-block text-left w-full max-w-sm mx-auto">
-                    <div className="text-[10px] font-mono text-muted uppercase tracking-widest mb-1">Submitted Details</div>
-                    <div className="font-display font-black text-xl uppercase leading-none mb-4">{formData.name}</div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center text-xs">
-                        <span className="text-muted font-mono uppercase">Service</span>
-                        <span className="font-bold uppercase text-brand">{formData.category}</span>
+                  <FormLayout title="Submission Successful">
+                    <div className="text-center py-6">
+                      <div className="w-20 h-20 bg-brand flex items-center justify-center mx-auto mb-8">
+                        <Star size={32} className="text-ink" fill="currentColor" />
                       </div>
-                      <div className="flex justify-between items-start text-xs">
-                        <span className="text-muted font-mono uppercase">Examination</span>
-                        <span className="font-bold uppercase text-ink text-right max-w-[150px]">{formData.subCategory}</span>
-                      </div>
-                      {formData.address && (
-                        <div className="flex justify-between items-start text-xs">
-                          <span className="text-muted font-mono uppercase">Address</span>
-                          <span className="font-bold uppercase text-ink text-right max-w-[150px]">{formData.address}</span>
+                      <h3 className="text-xl text-brand font-mono uppercase tracking-wider mb-2">Jay Hind</h3>
+                      <div className="mb-8 p-6 bg-background border-2 border-ink/10 inline-block text-left w-full max-w-sm mx-auto">
+                        <div className="text-[10px] font-mono text-muted uppercase tracking-widest mb-1">Submitted Details</div>
+                        <div className="font-display font-black text-xl uppercase leading-none mb-4">{formData.name}</div>
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="text-muted font-mono uppercase">Service</span>
+                            <span className="font-bold uppercase text-brand">{formData.category}</span>
+                          </div>
+                          <div className="flex justify-between items-start text-xs">
+                            <span className="text-muted font-mono uppercase">Examination</span>
+                            <span className="font-bold uppercase text-ink text-right max-w-[150px]">{formData.subCategory}</span>
+                          </div>
+                          {formData.address && (
+                            <div className="flex justify-between items-start text-xs">
+                              <span className="text-muted font-mono uppercase">Address</span>
+                              <span className="font-bold uppercase text-ink text-right max-w-[150px]">{formData.address}</span>
+                            </div>
+                          )}
                         </div>
-                      )}
+                      </div>
+                      <p className="text-sm text-muted font-body max-w-sm mx-auto leading-relaxed mb-10 italic">
+                        Thanks. Our team will contact you shortly.
+                      </p>
+                      <button
+                        onClick={handleClose}
+                        className="bg-ink text-brand font-display font-bold uppercase tracking-wider px-10 py-4 transition-all duration-300 hover:bg-brand hover:text-ink"
+                      >
+                        Close
+                      </button>
                     </div>
-                  </div>
-                  <p className="text-sm text-muted font-body max-w-sm mx-auto leading-relaxed mb-10 italic">
-                    Thanks. Our team will contact you shortly.
-                  </p>
-                  <button
-                    onClick={handleClose}
-                    className="bg-ink text-brand font-display font-bold uppercase tracking-wider px-10 py-4 transition-all duration-300 hover:bg-brand hover:text-ink"
-                  >
-                    Close
-                  </button>
+                  </FormLayout>
                 </motion.div>
               )}
             </AnimatePresence>

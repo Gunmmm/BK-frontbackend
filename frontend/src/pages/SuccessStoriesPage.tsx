@@ -32,7 +32,7 @@ export const SuccessStoriesPage: React.FC<SuccessStoriesPageProps> = ({ stories,
               Our <span className="text-brand">Success</span> Stories
             </h1>
             <p className="text-lg text-muted font-body max-w-2xl leading-relaxed">
-              Real results from real aspirants. Discover the journeys of those who turned their administrative dreams into absolute reality with BK Career Academy.
+              Real results from real aspirants. Discover the journeys of those who turned their administrative dreams into absolute reality with <span className="text-red-600">BK</span> Career Academy.
             </p>
           </div>
           <button 

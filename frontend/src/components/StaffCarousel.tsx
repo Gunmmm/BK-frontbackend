@@ -79,7 +79,7 @@ export const StaffCarousel: React.FC<StaffCarouselProps> = ({ staff }) => {
   return (
     <div className="relative w-full overflow-hidden group/carousel py-12">
       {/* Navigation Controls */}
-      <div className="absolute top-1/2 -translate-y-1/2 left-4 z-20 opacity-0 group-hover/carousel:opacity-100 transition-opacity duration-300">
+      <div className="absolute top-1/2 -translate-y-1/2 left-2 md:left-4 z-20 opacity-100 md:opacity-0 md:group-hover/carousel:opacity-100 transition-opacity duration-300">
         <button 
           onClick={(e) => { 
             e.stopPropagation();
@@ -89,13 +89,13 @@ export const StaffCarousel: React.FC<StaffCarouselProps> = ({ staff }) => {
               resetAutoplay(); 
             }
           }}
-          className="w-12 h-12 rounded-full bg-white/90 shadow-lg border border-ink/5 flex items-center justify-center text-ink hover:bg-brand hover:text-ink transition-colors"
+          className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/90 shadow-lg border border-ink/5 flex items-center justify-center text-ink hover:bg-brand hover:text-ink transition-colors"
         >
-          <ChevronLeft size={24} />
+          <ChevronLeft size={20} className="md:w-6 md:h-6" />
         </button>
       </div>
       
-      <div className="absolute top-1/2 -translate-y-1/2 right-4 z-20 opacity-0 group-hover/carousel:opacity-100 transition-opacity duration-300">
+      <div className="absolute top-1/2 -translate-y-1/2 right-2 md:right-4 z-20 opacity-100 md:opacity-0 md:group-hover/carousel:opacity-100 transition-opacity duration-300">
         <button 
           onClick={(e) => { 
             e.stopPropagation();
@@ -105,9 +105,9 @@ export const StaffCarousel: React.FC<StaffCarouselProps> = ({ staff }) => {
               resetAutoplay(); 
             }
           }}
-          className="w-12 h-12 rounded-full bg-white/90 shadow-lg border border-ink/5 flex items-center justify-center text-ink hover:bg-brand hover:text-ink transition-colors"
+          className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/90 shadow-lg border border-ink/5 flex items-center justify-center text-ink hover:bg-brand hover:text-ink transition-colors"
         >
-          <ChevronRight size={24} />
+          <ChevronRight size={20} className="md:w-6 md:h-6" />
         </button>
       </div>
 
@@ -141,7 +141,7 @@ export const StaffCarousel: React.FC<StaffCarouselProps> = ({ staff }) => {
       </motion.div>
 
       {/* Progress Indicators */}
-      <div className="flex justify-center gap-2 mt-12">
+      <div className="flex justify-center gap-2 mt-4">
         {staff.map((_, idx) => (
           <button
             key={idx}
